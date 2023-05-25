@@ -30,3 +30,4 @@ additionalTypeDefs: |
       keysArg: "contentIds"
     )
   }
+additionalEnvelopPlugins: "./envelopPlugins"

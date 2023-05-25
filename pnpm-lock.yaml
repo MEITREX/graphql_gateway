@@ -1,6 +1,12 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@envelop/core':
+    specifier: ^4.0.0
+    version: 4.0.0
+  '@envelop/generic-auth':
+    specifier: ^6.0.0
+    version: 6.0.0(@envelop/core@4.0.0)(graphql@16.6.0)
   '@graphql-mesh/cli':
     specifier: ^0.82.35
     version: 0.82.35(@babel/core@7.21.8)(@types/node@20.1.3)(graphql-tag@2.12.6)(graphql@16.6.0)(react-native@0.71.8)
@@ -1416,6 +1422,14 @@ packages:
       tslib: 2.5.0
     dev: false
 
+  /@envelop/core@4.0.0:
+    resolution: {integrity: sha512-6usEZO86hWT0ZajAbhOX0QXlV++lrlEmu8br6KQVvyXOxttiHADIibgfzb3GtSI7RnnJDnrcRb7Jynv6Lca3iQ==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@envelop/types': 4.0.0
+      tslib: 2.5.0
+    dev: false
+
   /@envelop/extended-validation@2.0.6(@envelop/core@3.0.6)(graphql@16.6.0):
     resolution: {integrity: sha512-aXAf1bg5Z71YfEKLCZ8OMUZAOYPGHV/a+7avd5TIMFNDxl5wJTmIonep3T+kdMpwRInDphfNPGFD0GcGdGxpHg==}
     peerDependencies:
@@ -1428,8 +1442,41 @@ packages:
       tslib: 2.5.0
     dev: false
 
+  /@envelop/extended-validation@3.0.0(@envelop/core@4.0.0)(graphql@16.6.0):
+    resolution: {integrity: sha512-nW3EjF27qghKszEbhSJFf7jTyoXZcU5XtWCHCuq+ghJOzkjMRQdMHkoiTWhScpAvJc0i26lyWTsZ/SZ0+xIRVA==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@envelop/core': ^4.0.0
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      '@envelop/core': 4.0.0
+      '@graphql-tools/utils': 10.0.0(graphql@16.6.0)
+      graphql: 16.6.0
+      tslib: 2.5.0
+    dev: false
+
+  /@envelop/generic-auth@6.0.0(@envelop/core@4.0.0)(graphql@16.6.0):
+    resolution: {integrity: sha512-retM3YQPuUyLzhFR7x1E3lzGW8uh/Rp4m9DmCfdP35mHKL8jijJP8KbvLZb5WmSkVemt2L9ilP5m3opOy/2BiQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@envelop/core': ^4.0.0
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      '@envelop/core': 4.0.0
+      '@envelop/extended-validation': 3.0.0(@envelop/core@4.0.0)(graphql@16.6.0)
+      graphql: 16.6.0
+      tslib: 2.5.0
+    dev: false
+
   /@envelop/types@3.0.2:
     resolution: {integrity: sha512-pOFea9ha0EkURWxJ/35axoH9fDGP5S2cUu/5Mmo9pb8zUf+TaEot8vB670XXihFEn/92759BMjLJNWBKmNhyng==}
+    dependencies:
+      tslib: 2.5.0
+    dev: false
+
+  /@envelop/types@4.0.0:
+    resolution: {integrity: sha512-dmBK16VVfKCkqYYemvE+gt1cPBP0d9CbYO4yjNhSSYy9K+w6+Lw48wOLK238mSR339PNAvwj/JW/qzNy2llggA==}
+    engines: {node: '>=16.0.0'}
     dependencies:
       tslib: 2.5.0
     dev: false
@@ -2246,6 +2293,17 @@ packages:
       - bufferutil
       - encoding
       - utf-8-validate
+    dev: false
+
+  /@graphql-tools/utils@10.0.0(graphql@16.6.0):
+    resolution: {integrity: sha512-ndBPc6zgR+eGU/jHLpuojrs61kYN3Z89JyMLwK3GCRkPv4EQn9EOr1UWqF1JO0iM+/jAVHY0mvfUxyrFFN9DUQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.6.0)
+      graphql: 16.6.0
+      tslib: 2.5.0
     dev: false
 
   /@graphql-tools/utils@8.13.1(graphql@16.6.0):
