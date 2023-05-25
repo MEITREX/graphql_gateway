@@ -1,0 +1,20 @@
+{
+  "name": "graphql_gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "mesh dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@envelop/core": "^4.0.0",
+    "@envelop/generic-auth": "^6.0.0",
+    "@graphql-mesh/cli": "^0.82.35",
+    "@graphql-mesh/graphql": "^0.93.1",
+    "graphql": "^16.6.0"
+  }
+}
