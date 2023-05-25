@@ -161,20 +161,24 @@ type Query {
     coursesById(ids: [UUID!]!): [Course!]!
 
     mediaRecordsById(ids: [UUID!]!): [MediaRecord!]!
+    mediaRecords: [MediaRecord!]!
 }
 
 type Mutation {
     createCourse(input: CreateCourseInput!): Course!
     updateCourse(input: UpdateCourseInput!): Course!
-    deleteCourse(id: UUID!): Course!
+    # deletes course, throws error when no course with the id exists
+    deleteCourse(id: UUID!): UUID!
 
     createChapter(input: CreateChapterInput!): Chapter!
     updateChapter(input: UpdateChapterInput!): Chapter!
-    deleteChapter(id: UUID!): Chapter!
+    # deletes chapter, throws error when no chapter with the id exists
+    deleteChapter(id: UUID!): UUID!
 
     createMediaRecord(input: CreateMediaRecordInput!): MediaRecord!
     updateMediaRecord(input: UpdateMediaRecordInput!): MediaRecord!
-    deleteMediaRecord(id: UUID!): MediaRecord!
+    # deletes media record, throws error when no media record with the id exists
+    deleteMediaRecord(id: UUID!): UUID!
 
 }
 
