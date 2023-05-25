@@ -16,7 +16,7 @@ const resolveUserFn: ResolveUserFn<UserType> = async context => {
         
         // get user information from request headers and validate it using the user service.
 
-        return null
+        return {"auth": context.req.headers.auth}
     } catch (e) {
         console.error('Failed to validate token')
 
