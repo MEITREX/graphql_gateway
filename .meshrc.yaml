@@ -1,16 +1,19 @@
+serve:
+  hostname: 0.0.0.0
+  port: 8080
 sources:
   - name: CourseService
     handler:
       graphql:
-        endpoint: http://localhost:2001/graphql
+        endpoint: http://host.docker.internal:2001/graphql
   - name: ContentService
     handler:
       graphql:
-        endpoint: http://localhost:4001/graphql
+        endpoint: http://host.docker.internal:4001/graphql
   - name: MediaService
     handler:
       graphql:
-        endpoint: http://localhost:3001/graphql
+        endpoint: http://host.docker.internal:3001/graphql
 additionalTypeDefs: |
   extend type Chapter {
     contents: [Content!]! @resolveTo(
