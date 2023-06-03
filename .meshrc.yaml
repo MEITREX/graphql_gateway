@@ -1,16 +1,19 @@
+serve:
+  hostname: ${GATEWAY_HOSTNAME}
+  port: ${GATEWAY_PORT}
 sources:
   - name: CourseService
     handler:
       graphql:
-        endpoint: http://localhost:2001/graphql
+        endpoint: "{env.COURSE_SERVICE_URL}"
   - name: ContentService
     handler:
       graphql:
-        endpoint: http://localhost:4001/graphql
+        endpoint: "{env.CONTENT_SERVICE_URL}"
   - name: MediaService
     handler:
       graphql:
-        endpoint: http://localhost:3001/graphql
+        endpoint: "{env.MEDIA_SERVICE_URL}"
 additionalTypeDefs: |
   extend type Chapter {
     contents: [Content!]! @resolveTo(
