@@ -1,5 +1,9 @@
-import { PluginOrDisabledPlugin } from '@envelop/core'
-import { useGenericAuth, ResolveUserFn } from '@envelop/generic-auth'
+import { PluginOrDisabledPlugin } from '@envelop/core';
+import { useGenericAuth, ResolveUserFn } from '@envelop/generic-auth';
+
+const keycloakHost = "host.docker.internal";
+const keycloakPort = "9009";
+const realmName = "GITS";
 
 type UserType = {
     id: string
@@ -12,15 +16,31 @@ const resolveUserFn: ResolveUserFn<UserType> = async context => {
     // Make sure to either return `null` or the user object.
 
     try {
-        console.log(context.req.headers.auth)
-        
-        // get user information from request headers and validate it using the user service.
+        // get user information from request headers
+        const authHeader = context.req.headers.authorization;
 
-        return {"auth": context.req.headers.auth}
+        const url = `http://${keycloakHost}:${keycloakPort}/realms/${realmName}/protocol/openid-connect/userinfo`;
+        const options = {
+            method: "GET",
+            headers: {
+                "authorization": authHeader
+            }
+        };
+
+        // send request to keycloak
+        const response = await fetch(url, options);
+        const responseJson = await response.json();
+
+        if (response.status == 200) {
+            return responseJson;
+        } else {
+            return null;
+        }
     } catch (e) {
-        console.error('Failed to validate token')
+        console.error('Failed to validate token');
+        console.error(e);
 
-        return null
+        return null;
     }
 }
 
@@ -31,4 +51,4 @@ const plugins: PluginOrDisabledPlugin = [
     })
 ]
 
-export default plugins
+export default plugins;
