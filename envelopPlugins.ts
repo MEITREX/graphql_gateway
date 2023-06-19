@@ -32,7 +32,6 @@ const resolveUserFn: ResolveUserFn<UserType> = async (context) => {
     );
 
     return { id: payload.sub };
-    console.log(payload);
   } catch (e) {
     console.error("Failed to validate token");
     console.error(e);
