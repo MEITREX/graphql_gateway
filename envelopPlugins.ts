@@ -1,9 +1,9 @@
 import { PluginOrDisabledPlugin } from "@envelop/core";
 import { ResolveUserFn, useGenericAuth } from "@envelop/generic-auth";
 import * as jose from "jose";
-const keycloakHost = "host.docker.internal";
-const keycloakPort = "9009";
-const realmName = "GITS";
+const keycloakHost = process.env.KEYCLOAK_HOST ?? "host.docker.internal";
+const keycloakPort = process.env.KEYCLOAK_PORT ?? "9009";
+const realmName = process.env.KEYCLOAK_REALM ?? "GITS";
 
 type UserType = {
   id: string;
