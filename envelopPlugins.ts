@@ -4,6 +4,9 @@ import * as jose from "jose";
 
 type UserType = {
   id: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
 };
 
 const JWKS = jose.createRemoteJWKSet(
@@ -28,7 +31,16 @@ const resolveUserFn: ResolveUserFn<UserType> = async (context) => {
       {}
     );
 
-    return { id: payload.sub };
+    let user: UserType = {
+      id: payload.sub,
+      userName: payload.preferred_username,
+      firstName: payload.given_name,
+      lastName: payload.family_name
+    };
+
+    context.currentUserJson = JSON.stringify(user);
+
+    return user;
   } catch (e) {
     console.error("Failed to validate token");
     console.error(e);
