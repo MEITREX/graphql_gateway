@@ -1,5 +1,5 @@
-import { PluginOrDisabledPlugin } from "@envelop/core";
-import { ResolveUserFn, useGenericAuth } from "@envelop/generic-auth";
+import {PluginOrDisabledPlugin} from "@envelop/core";
+import {ResolveUserFn, useGenericAuth} from "@envelop/generic-auth";
 import * as jose from "jose";
 
 type UserType = {
