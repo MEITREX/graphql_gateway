@@ -39,7 +39,7 @@ const resolvers: Resolvers = {
                     info
                 });
 
-                await content.QuizService.Mutation.createQuiz({
+                await context.QuizService.Mutation.createQuiz({
                     root,
                     args: {
                         assessmentId: content.id,
