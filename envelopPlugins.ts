@@ -53,7 +53,7 @@ function resolveUserSkipAuthDangerous(context) {
 }
 
 const resolveUserFn: ResolveUserFn<UserType> = async (context) => {
-  if(process.env.SKIP_AUTH.toLowerCase() === "true") {
+  if(process.env.SKIP_AUTH !== undefined && process.env.SKIP_AUTH.toLowerCase() === "true") {
     return resolveUserSkipAuthDangerous(context);
   } else {
     return await resolveUserAuthenticated(context);
