@@ -56,6 +56,8 @@ async function resolveUserAuthenticated(context) {
       return null;
     }
 
+    console.log(userInfoRes);
+
     // query the course service to fetch additional course information for the courses the user is a member of
     let courseInfoRes = await context.CourseService.Query.coursesByIds({
       args: {
