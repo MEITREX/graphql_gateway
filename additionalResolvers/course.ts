@@ -2,9 +2,11 @@ import {Resolvers} from "../.mesh";
 
 const resolvers: Resolvers = {
     Course: {
+        // combines suggestions from the chapters of the course to a single list of suggestions for the
+        // whole course
         suggestions: {
-            // manually request some fields from the chapters that we need to decide if the chapter should
-            // be included in the suggestions
+            // manually request some fields from the chapters that we will need to decide if
+            // the chapter should be included in the suggestions
             selectionSet: `
             {
               chapters {
