@@ -34,7 +34,8 @@ const resolvers: Resolvers = {
                         amount: _args.amount,
                         skillTypes: _args.skillTypes
                     },
-
+					context,
+					info
                 })
             }
         },
