@@ -56,7 +56,6 @@ additionalTypeDefs:
   - "./additionalTypeDefs/rewards.graphqls"
   - "./additionalTypeDefs/user.graphqls"
   - "./additionalTypeDefs/skill_level.graphqls"
-  - "./additionalTypeDefs/ResourceMarkdown.graphqls"
 additionalResolvers:
   - "./additionalResolvers/course.ts"
   - "./additionalResolvers/content.ts"
