@@ -56,7 +56,7 @@ extend type QuizAssessment {
     sourceName: "QuizService",
     sourceTypeName: "Query",
     sourceFieldName: "findQuizzesByAssessmentIds",
-    keyField: "assessmentId",
+    keyField: "id",
     keysArg: "assessmentIds"
   )
 }
