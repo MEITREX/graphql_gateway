@@ -1,0 +1,12 @@
+extend type FlashcardSet {
+  """
+  The content this FlashcardSet belongs to.
+  """
+  content: Content @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "contentsByIds",
+    keyField: "assessmentId",
+    keysArg: "ids"
+  )
+}
