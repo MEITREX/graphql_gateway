@@ -81,7 +81,7 @@ const resolvers: Resolvers = {
                 let chapters = await context.CourseService.Query.chaptersByIds({
                     root,
                     args: {
-                        ids: [_args.sectionInput.chapterId]
+                        ids: [_args.input.chapterId]
                     },
                     selectionSet: `
                     {
