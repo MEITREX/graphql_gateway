@@ -102,7 +102,7 @@ const resolvers: Resolvers = {
                     root,
                     args: {
                         courseId: courseId,
-                        input: _args.sectionInput
+                        input: _args.input
                     },
                     context,
                     info
