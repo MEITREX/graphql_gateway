@@ -57,7 +57,7 @@ const resolvers: Resolvers = {
                 let courseId = chapters[0].course.id;
 
                 // check that the user is an admin in the course the assessment should be created in
-                if (!context.user.courseMemberships.some((membership) => {
+                if (!context.currentUser.courseMemberships.some((membership) => {
                     return membership.courseId === courseId && membership.role === "ADMINISTRATOR";
                 })) {
                     throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
@@ -118,7 +118,7 @@ const resolvers: Resolvers = {
                 let courseId = chapters[0].course.id;
 
                 // check that the user is an admin in the course the assessment should be created in
-                if (!context.user.courseMemberships.some((membership) => {
+                if (!context.currentUser.courseMemberships.some((membership) => {
                     return membership.courseId === courseId && membership.role === "ADMINISTRATOR";
                 })) {
                     throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
