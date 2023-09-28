@@ -74,6 +74,8 @@ const resolvers: Resolvers = {
                     info
                 });
 
+                console.log(context.QuizService.Mutation);
+
                 // create the quiz
                 await context.QuizService.Mutation._internal_noauth_createQuiz({
                     root,
