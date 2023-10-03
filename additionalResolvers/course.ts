@@ -78,7 +78,7 @@ const resolvers: Resolvers = {
     Mutation: {
         createSection: {
             async resolve(root, _args, context, info) {
-                let chapters = await context.CourseService.Query.chaptersByIds({
+                let chapters = await context.CourseService.Query._internal_noauth_chaptersByIds({
                     root,
                     args: {
                         ids: [_args.input.chapterId]
