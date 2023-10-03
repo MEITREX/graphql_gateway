@@ -4,11 +4,40 @@ const resolvers: Resolvers = {
     Mutation: {
         createMediaContentAndLinkRecords: {
             async resolve(root, _args, context, info) {
+                // find out in which course the chapter this content should be created in is
+                let chapters = await context.CourseService.Query.chaptersByIds({
+                    root,
+                    args: {
+                        ids: [_args.contentInput.metadata.chapterId]
+                    },
+                    selectionSet: `
+                    {
+                        course {
+                            id
+                        }
+                    }
+                    `,
+                });
+
+                if (chapters.length !== 1) {
+                    throw new Error("Chapter with given id does not exist.");
+                }
+
+                let courseId = chapters[0].course.id;
+
+                // check that the user is an admin in the course the content should be created in
+                if (!context.currentUser.courseMemberships.some((membership) => {
+                    return membership.courseId === courseId && membership.role === "ADMINISTRATOR";
+                })) {
+                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
+                }
+
                 // create the content object using the createMediaContent query of the content service
                 let content = await context.ContentService.Mutation._internal_createMediaContent({
                     root,
                     args: {
-                        input: _args.contentInput
+                        input: _args.contentInput,
+                        courseId: courseId,
                     },
                     context,
                     info
@@ -73,8 +102,6 @@ const resolvers: Resolvers = {
                     context,
                     info
                 });
-
-                console.log(context.QuizService.Mutation);
 
                 // create the quiz
                 await context.QuizService.Mutation._internal_noauth_createQuiz({
