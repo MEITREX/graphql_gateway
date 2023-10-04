@@ -53,7 +53,6 @@ sources:
 additionalTypeDefs:
   - "./additionalTypeDefs/content.graphqls"
   - "./additionalTypeDefs/course.graphqls"
-  - "./additionalTypeDefs/flashcard.graphqls"
   - "./additionalTypeDefs/rewards.graphqls"
   - "./additionalTypeDefs/skill_level.graphqls"
   - "./additionalTypeDefs/user.graphqls"
