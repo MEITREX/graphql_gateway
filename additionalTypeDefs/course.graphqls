@@ -109,6 +109,19 @@ extend type Chapter {
   )
 }
 
+extend type CourseMembership {
+  """
+  The user of this course membership.
+  """
+  user: PublicUserInfo @resolveTo(
+    sourceName: "UserService",
+    sourceTypeName: "Query",
+    sourceFieldName: "findPublicUserInfos",
+    keyField: "id",
+    keysArg: "ids"
+  )
+}
+
 extend type Mutation {
   """
   Creates a new section in a chapter.
