@@ -117,7 +117,7 @@ extend type CourseMembership {
     sourceName: "UserService",
     sourceTypeName: "Query",
     sourceFieldName: "findPublicUserInfos",
-    keyField: "id",
+    keyField: "userId",
     keysArg: "ids"
   )
 }
