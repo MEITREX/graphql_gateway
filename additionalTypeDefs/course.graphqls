@@ -1,4 +1,7 @@
 extend type Course {
+  """
+  The reward scores of this course for the currently logged in user.
+  """
   rewardScores: RewardScores! @resolveTo(
     sourceName: "RewardService",
     sourceTypeName: "Query",
@@ -8,6 +11,10 @@ extend type Course {
       courseId: "{root.id}"
     }
   )
+
+  """
+  The scoreboard containing the power scores of the members of this course.
+  """
   scoreboard: [ScoreboardItem!]! @resolveTo(
     sourceName: "RewardService",
     sourceTypeName: "Query",
@@ -17,6 +24,18 @@ extend type Course {
       courseId: "{root.id}"
     }
   )
+
+  """
+  The media records which are linked to this course.
+  """
+  mediaRecords: [MediaRecord!]! @resolveTo(
+    sourceName: "MediaService",
+    sourceTypeName: "Query",
+    sourceFieldName: "mediaRecordsForCourses",
+    keyField: "id",
+    keysArg: "courseIds"
+  )
+
   """
   Suggests content of the course which the current user should
   learn next (both new content and content to repeat).

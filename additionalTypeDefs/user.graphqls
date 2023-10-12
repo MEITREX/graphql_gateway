@@ -7,5 +7,17 @@ extend type UserInfo {
     sourceTypeName: "Query",
     sourceFieldName: "_internal_noauth_courseMembershipsByUserIds",
     keyField: "id",
-    keysArg: "userIds")
+    keysArg: "userIds"
+  )
+
+  """
+  Media records of this user.
+  """
+  mediaRecords: [MediaRecord!]! @resolveTo(
+    sourceName: "MediaService",
+    sourceTypeName: "Query",
+    sourceFieldName: "mediaRecordsForUsers",
+    keyField: "id",
+    keysArg: "userIds"
+  )
 }
