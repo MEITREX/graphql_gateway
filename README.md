@@ -1,5 +1,5 @@
 # graphql_gateway
-The gateway provides a unified API to access the functionality of the GITS backend.
+The gateway provides a unified API to access the functionality of the MEITREX backend.
 
 The gateway is run as a [GraphQL Mesh](https://the-guild.dev/graphql/mesh) server which merges the GraphQL schemas of the different microservices into one unified schema.
 
