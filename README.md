@@ -14,7 +14,7 @@ See [api.md](api.md).
 **Please note that currently all services need to be running during startup of the Gateway to allow the Gateway to fetch the services' schemas. This makes sense during the development phase but in a production environment the schemas should be imported to the gateway via the services' schema files to improve system robustness when some services are offline during gateway startup.**
 
 ### Docker Environment
-As the gateway is useless without any other services, it is recommended you run it via the [gits_backend repository](https://github.com/IT-REX-Platform/gits_backend).
+As the gateway is useless without any other services, it is recommended you run it via the [gits_backend repository](https://github.com/MEITREX/backend).
 
 ### Running the Gateway Standalone
 A `docker-compose` file is provided which can be used to run the gateway via a terminal using `docker compose up`.
