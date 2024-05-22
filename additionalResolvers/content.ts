@@ -126,6 +126,7 @@ const resolvers: Resolvers = {
         createFlashcardSetAssessment: {
             async resolve(root, _args, context, info) {
                 // find out in which course the chapter this assessment should be created in is
+                console.log(_args.assessmentInput.metadata.chapterId);
                 let chapters = await context.CourseService.Query._internal_noauth_chaptersByIds({
                     root,
                     args: {
@@ -182,8 +183,11 @@ const resolvers: Resolvers = {
                 });
 
                 return content;
-            }
+            },
+
         },
+
+
     }
 }
 

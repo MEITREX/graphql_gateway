@@ -2,7 +2,8 @@ FROM node:20
 
 WORKDIR /gateway/
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@latest-8
+
 
 # only copy the package files, this means that installed dependencies can be cached
 # by docker as long as the dependencies in the package files haven't changed
