@@ -46,17 +46,10 @@ const resolvers: Resolvers = {
                     context,
                     info
                 });
-                console.log("got Assessment!");
                 let assessment =assessments[0];
-                console.log(assessment);
-                console.log(assessment.items);
                 let oldItems= assessment.items;
                 let items=assessment.items;
-                console.log("test");
-                console.log(_args.item);
                 items=[...items,_args.item];
-                console.log("test");
-                console.log(items);
                 assessment.items=items;
                 let selectionSet=`{updateAssessment(input: {
                     metadata: {
@@ -90,7 +83,6 @@ const resolvers: Resolvers = {
                     }
                 }
                 }`;
-                console.log("selection");
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -99,7 +91,6 @@ const resolvers: Resolvers = {
                     info});
 
                 let questionInput=_args.questionInput;
-                console.log(updatedItems);
                 for (let item of updatedItems.updateAssessment.items) {
                     if (!oldItems.some(oldItem => oldItem.id === item.id)) {
                         questionInput.itemId= item.id;
@@ -180,7 +171,6 @@ const resolvers: Resolvers = {
                     questionPool:question._internal_noauth_addMultipleChoiceQuestion.questionPool,
                     item:returnItem
                 }; // Initialize the variable
-                console.log(quizOutput);
                 return quizOutput;
             },
 
@@ -231,15 +221,11 @@ const resolvers: Resolvers = {
                 let assessment =assessments[0];
                 let items=assessment.items;
                 for(let i=0;i<items.length;i++){
-                    console.log(items[i]);
-                    console.log(_args.item);
                     if(_args.item.id==items[i].id ){
-                        console.log("entered");
                         items[i]=_args.item
                     }
                 }
                 assessment.items=items;
-                console.log(assessment.items);
                 let selectionSet=`{updateAssessment(input: {
                     metadata: {
                         name: "${assessment.metadata.name}",
@@ -272,7 +258,7 @@ const resolvers: Resolvers = {
                     }
                 }
                 }`;
-                console.log(selectionSet);
+
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -283,7 +269,6 @@ const resolvers: Resolvers = {
               
                 let questionInput=_args.questionInput;
 
-                console.log(updatedItems);
 
 let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
     itemId: "${questionInput.itemId}",
@@ -348,7 +333,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     info
                     });
 
-                console.log(question);
                 let returnItem=updatedItems.updateAssessment.items.find(item => item.id == _args.item.id);
 
                 let quizOutput = {
@@ -404,9 +388,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     context,
                     info
                 });
-                console.log("got Assessment!");
                 let assessment =assessments[0];
-                console.log(assessment);
                 let oldItems= assessment.items;
                 let items=assessment.items;
                 items=[...items,_args.item];
@@ -595,10 +577,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                 let items=assessment.items;
                 items.map(item => item.id ===_args.item.id ? _args.item : item);
                 for(let i=0;i<items.length;i++){
-                    console.log(items[i]);
-                    console.log(_args.item);
                     if(_args.item.id==items[i].id ){
-                        console.log("entered");
                         items[i]=_args.item
                     }
                 }
@@ -636,7 +615,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     }
                 }
                 }`;
-                console.log(selectionSet);
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -775,14 +753,11 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     context,
                     info
                 });
-                console.log("got Assessment!");
                 let assessment =assessments[0];
-                console.log(assessment);
                 let oldItems= assessment.items;
                 let items=assessment.items;
                 items=[...items,_args.item];
                 assessment.items=items;
-                console.log("test");
                 let selectionSet=`{updateAssessment(input: {
                     metadata: {
                         name: "${assessment.metadata.name}",
@@ -821,8 +796,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     selectionSet:selectionSet, 
                     context,
                     info});
-                    console.log("test");
-                    console.log(updatedItems);
                 let questionInput=_args.questionInput;
                 for (let item of updatedItems.updateAssessment.items) {
                     if (!oldItems.some(oldItem => oldItem.id === item.id)) {
@@ -885,7 +858,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
 
                     } 
                 }}`;
-                console.log(selectionSetQuiz);
 
                 let question = await context.QuizService.Mutation.mutateQuiz({
                     root,
@@ -904,12 +876,14 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                         break;
                     }
                 }
+                console.log(question);
+                console.log(question._internal_noauth_addAssociationQuestion);
                 let quizOutput = {
-                    assessmentId:question._internal_noauth_addAssociationQuestion.assessmentId,
-                    flashcard:question._internal_noauth_addAssociationQuestion.questionPool,
+                    assessmentId: question._internal_noauth_addAssociationQuestion.assessmentId,
+                    questionPool: question._internal_noauth_addAssociationQuestion.questionPool,
                     item:returnItem
                 }; // Initialize the variable
-
+                
                 return quizOutput;
 
 
@@ -962,10 +936,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                 let assessment =assessments[0];
                 let items=assessment.items;
                 for(let i=0;i<items.length;i++){
-                    console.log(items[i]);
-                    console.log(_args.item);
                     if(_args.item.id==items[i].id ){
-                        console.log("entered");
                         items[i]=_args.item
                     }
                 }
@@ -1002,7 +973,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     }
                 }
                 }`;
-                console.log(selectionSet);
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -1077,7 +1047,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     info
                     });
 
-                console.log(question);
                 let returnItem=updatedItems.updateAssessment.items.find(item => item.id == _args.item.id);
 
                 let quizOutput = {
@@ -1135,7 +1104,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     context,
                     info
                 });
-                console.log("got Assessment!");
                 let assessment =assessments[0];
                 let oldItems= assessment.items;
                 let items=assessment.items;
@@ -1305,7 +1273,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     }
                 }
                 }`;
-                console.log(selectionSet);
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -1397,7 +1364,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     context,
                     info
                 });
-                console.log("got Assessment!");
                 let assessment =assessments[0];
                 let oldItems= assessment.items;
                 let items=assessment.items;
@@ -1563,7 +1529,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     }
                 }
                 }`;
-                console.log(selectionSet);
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -1650,7 +1615,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     context,
                     info
                 });
-                console.log("got Assessment!");
+ 
                 let assessment =assessments[0];
                 let oldItems= assessment.items;
                 let items=assessment.items;
@@ -1811,7 +1776,6 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     }
                 }
                 }`;
-                console.log(selectionSet);
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},

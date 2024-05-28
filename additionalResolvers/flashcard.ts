@@ -50,10 +50,7 @@ const resolvers: Resolvers = {
                 let items=assessment.items;
                 items.map(item => item.id ==_args.item.id ? _args.item : item);
                 for(let i=0;i<items.length;i++){
-                    console.log(items[i]);
-                    console.log(_args.item);
                     if(_args.item.id==items[i].id ){
-                        console.log("entered");
                         items[i]=_args.item
                     }
                 }
@@ -90,7 +87,6 @@ const resolvers: Resolvers = {
                     }
                 }
                 }`;
-                console.log(selectionSet);
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args:{contentId:_args.assessmentId},
@@ -99,8 +95,6 @@ const resolvers: Resolvers = {
                     info});
     
                 let flashcardInput=_args.flashcardInput;
-            
-                console.log("mutated Assessment!");
                 let selectionSetFlashcard=`{_internal_noauth_updateFlashcard(input: {
                     itemId: "${flashcardInput.itemId}",
                     sides: [
@@ -135,7 +129,7 @@ const resolvers: Resolvers = {
                     flashcard:flashcard._internal_noauth_updateFlashcard,
                     item:returnItem
                 }; // Initialize the variable
-                console.log(flashcardOutput);
+
                 return flashcardOutput;
             },
         
@@ -183,7 +177,6 @@ const resolvers: Resolvers = {
                     context,
                     info
                 });
-            console.log("got Assessment!");
             let assessment =assessments[0];
             let oldItems= assessment.items;
             let items=assessment.items;
@@ -221,7 +214,6 @@ const resolvers: Resolvers = {
                 }
             }
             }`;
-            console.log(selectionSet);
             let updatedItems = await context.ContentService.Mutation.mutateContent({
                 root,
                 args:{contentId:_args.assessmentId},
@@ -236,7 +228,6 @@ const resolvers: Resolvers = {
                     break;
                 }
             }
-            console.log("mutated Assessment!");
             let selectionSetFlashcard=`{_internal_noauth_createFlashcard(input: {
                 itemId: "${flashcardInput.itemId}",
                 sides: [
@@ -256,7 +247,6 @@ const resolvers: Resolvers = {
                     }
                 }
             }`;
-            console.log(updatedItems.updateAssessment.items.associatedSkills);
             let flashcard = await context.FlashcardService.Mutation.mutateFlashcardSet({
                 root,
                  args: {
@@ -267,7 +257,6 @@ const resolvers: Resolvers = {
                  selectionSet: selectionSetFlashcard,
                  context,
                 info});
-            console.log("create flashcard");
             let returnItem;
             for (let item of updatedItems.updateAssessment.items) {
                 if (!oldItems.some(oldItem => oldItem.id === item.id)) {
@@ -275,12 +264,10 @@ const resolvers: Resolvers = {
                     break;
                 }
             }
-            console.log(returnItem);
             let flashcardOutput = {
                 flashcard:flashcard._internal_noauth_createFlashcard,
                 item:returnItem
             }; // Initialize the variable
-           console.log(flashcardOutput);
             return flashcardOutput;
             },
 
