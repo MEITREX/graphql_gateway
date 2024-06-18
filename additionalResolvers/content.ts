@@ -57,6 +57,8 @@ const resolvers: Resolvers = {
                         id
                     }
                     `,
+                    context,
+                    info
                 });
 
                 return content;
