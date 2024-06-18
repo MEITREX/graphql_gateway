@@ -56,9 +56,13 @@ additionalTypeDefs:
   - "./additionalTypeDefs/rewards.graphqls"
   - "./additionalTypeDefs/skill_level.graphqls"
   - "./additionalTypeDefs/user.graphqls"
+  - "./additionalTypeDefs/flashcard.graphqls"
+  - "./additionalTypeDefs/quiz.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
+  - "./additionalResolvers/flashcard.ts"
+  - "./additionalResolvers/quiz.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
