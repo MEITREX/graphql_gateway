@@ -20,14 +20,15 @@
     * [Course](#course)
     * [CourseMembership](#coursemembership)
     * [CoursePayload](#coursepayload)
-    * [CourseResourceAssociation](#courseresourceassociation)
     * [ExactAnswerQuestion](#exactanswerquestion)
     * [Flashcard](#flashcard)
+    * [FlashcardLearnedFeedback](#flashcardlearnedfeedback)
     * [FlashcardProgressData](#flashcardprogressdata)
     * [FlashcardProgressDataLog](#flashcardprogressdatalog)
     * [FlashcardSet](#flashcardset)
     * [FlashcardSetAssessment](#flashcardsetassessment)
     * [FlashcardSetMutation](#flashcardsetmutation)
+    * [FlashcardSetProgress](#flashcardsetprogress)
     * [FlashcardSide](#flashcardside)
     * [MediaContent](#mediacontent)
     * [MediaRecord](#mediarecord)
@@ -40,8 +41,8 @@
     * [PublicUserInfo](#publicuserinfo)
     * [Quiz](#quiz)
     * [QuizAssessment](#quizassessment)
+    * [QuizCompletionFeedback](#quizcompletionfeedback)
     * [QuizMutation](#quizmutation)
-    * [ResourceMarkdown](#resourcemarkdown)
     * [RewardLogItem](#rewardlogitem)
     * [RewardScore](#rewardscore)
     * [RewardScores](#rewardscores)
@@ -90,7 +91,6 @@
     * [Pagination](#pagination)
     * [QuestionCompletedInput](#questioncompletedinput)
     * [QuizCompletedInput](#quizcompletedinput)
-    * [ResourceMarkdownInput](#resourcemarkdowninput)
     * [StringFilter](#stringfilter)
     * [UpdateAssessmentInput](#updateassessmentinput)
     * [UpdateAssociationQuestionInput](#updateassociationquestioninput)
@@ -109,6 +109,7 @@
   * [Enums](#enums)
     * [ClozeElementType](#clozeelementtype)
     * [ContentType](#contenttype)
+    * [GlobalUserRole](#globaluserrole)
     * [MediaType](#mediatype)
     * [QuestionPoolingMode](#questionpoolingmode)
     * [QuestionType](#questiontype)
@@ -195,44 +196,13 @@ If a user does not exist, null is returned for that user.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>flashcardsByIds</strong></td>
-<td valign="top">[<a href="#flashcard">Flashcard</a>!]!</td>
-<td>
-
-
-Get flashcards by their ids
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">ids</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>findFlashcardSetsByAssessmentIds</strong></td>
-<td valign="top">[<a href="#flashcardset">FlashcardSet</a>]!</td>
-<td>
-
-
-Get flashcard sets by their assessment ids.
-Returns a list of flashcard sets in the same order as the provided ids.
-Each element is null if the corresponding id is not found.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">assessmentIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>userCourseRewardScores</strong></td>
 <td valign="top"><a href="#rewardscores">RewardScores</a>!</td>
 <td>
 
 
 Get the reward score of the current user for the specified course.
+🔒 The user must have access to the course with the given id to access their scores, otherwise an error is thrown.
 
 </td>
 </tr>
@@ -248,6 +218,7 @@ Get the reward score of the current user for the specified course.
 
 
 Get the reward score of the specified user for the specified course.
+🔒 The user be an admin in the course with the given courseId to perform this action.
 
 </td>
 </tr>
@@ -268,6 +239,7 @@ Get the reward score of the specified user for the specified course.
 
 
 Gets the power scores for each user in the course, ordered by power score descending.
+🔒 The user must have access to the course with the given id to access the scoreboard, otherwise an error is thrown.
 
 </td>
 </tr>
@@ -283,6 +255,7 @@ Gets the power scores for each user in the course, ordered by power score descen
 
 
 Get a list of courses. Can be filtered, sorted and paginated.
+Courses and their basic data can be queried by any user, even if they are not enrolled in the course.
 
 </td>
 </tr>
@@ -324,6 +297,7 @@ The sort direction for each field. If not specified, defaults to ASC.
 
 
 Returns the courses with the given ids.
+Courses and their basic data can be queried by any user, even if they are not enrolled in the course.
 
 </td>
 </tr>
@@ -333,12 +307,13 @@ Returns the courses with the given ids.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>chaptersByIds</strong></td>
-<td valign="top">[<a href="#chapter">Chapter</a>!]!</td>
+<td colspan="2" valign="top"><strong>flashcardsByIds</strong></td>
+<td valign="top">[<a href="#flashcard">Flashcard</a>!]!</td>
 <td>
 
 
-Returns the chapters with the given ids.
+Get flashcards by their ids.
+🔒 The user must be enrolled in the course the flashcards belong to. Otherwise an error is thrown.
 
 </td>
 </tr>
@@ -348,112 +323,15 @@ Returns the chapters with the given ids.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>courseResourceAssociationsByIds</strong></td>
-<td valign="top">[<a href="#courseresourceassociation">CourseResourceAssociation</a>!]!</td>
+<td colspan="2" valign="top"><strong>findFlashcardSetsByAssessmentIds</strong></td>
+<td valign="top">[<a href="#flashcardset">FlashcardSet</a>]!</td>
 <td>
 
 
-Returns a set of Resource Objects for the given resource ids, containing a list of all course IDs for a resource and its availability in the course.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">ids</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>resourceById</strong> ⚠️</td>
-<td valign="top">[<a href="#courseresourceassociation">CourseResourceAssociation</a>!]!</td>
-<td>
-
-
-Returns a set of Resource Objects for the given resource ids, containing a list of all course IDs for a resource and its availability in the course.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Use courseResourceAssociationsByIds instead.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">ids</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>chapters</strong></td>
-<td valign="top"><a href="#chapterpayload">ChapterPayload</a>!</td>
-<td>
-
-
-Get the list of chapters for a course. Can be filtered, sorted and paginated.
-Throws an error if the course does not exist.
-The default sort order is by chapter number.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">courseId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">filter</td>
-<td valign="top"><a href="#chapterfilter">ChapterFilter</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">sortBy</td>
-<td valign="top">[<a href="#string">String</a>!]!</td>
-<td>
-
-
-The fields to sort by. The default sort order is by chapter number.
-Throws an error if no field with the given name exists.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">sortDirection</td>
-<td valign="top">[<a href="#sortdirection">SortDirection</a>!]!</td>
-<td>
-
-
-The sort direction for each field. If not specified, defaults to ASC.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">pagination</td>
-<td valign="top"><a href="#pagination">Pagination</a></td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>courseMembershipsByUserIds</strong></td>
-<td valign="top">[[<a href="#coursemembership">CourseMembership</a>!]!]!</td>
-<td>
-
-
-Returns the list of courseMemberships for the specified User.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">userIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>findQuizzesByAssessmentIds</strong></td>
-<td valign="top">[<a href="#quiz">Quiz</a>]!</td>
-<td>
-
-
-Get quiz by assessment ID.
-If any of the assessment IDs are not found, the corresponding quiz will be null.
+Get flashcard sets by their assessment ids.
+Returns a list of flashcard sets in the same order as the provided ids.
+Each element is null if the corresponding id is not found.
+🔒 The user must be enrolled in the course the flashcard sets belong to. Otherwise for that element null is returned.
 
 </td>
 </tr>
@@ -463,14 +341,146 @@ If any of the assessment IDs are not found, the corresponding quiz will be null.
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>contents</strong></td>
-<td valign="top"><a href="#contentpayload">ContentPayload</a>!</td>
+<td colspan="2" valign="top"><strong>dueFlashcardsByCourseId</strong></td>
+<td valign="top">[<a href="#flashcard">Flashcard</a>!]!</td>
 <td>
 
 
-get all contents
+Get flashcards of a course that are due to be reviewed.
+🔒 The user must be enrolled in the course the flashcards belong to. Otherwise an error is thrown.
 
 </td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">courseId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecordsByIds</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+
+Returns the media records with the given IDs. Throws an error if a MediaRecord corresponding to a given ID
+cannot be found.
+🔒 If the mediaRecord is associated with coursed the user must be a member of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">ids</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>findMediaRecordsByIds</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>]!</td>
+<td>
+
+
+Like mediaRecordsByIds() returns the media records with the given IDs, but instead of throwing an error if an ID
+cannot be found, it instead returns NULL for that media record.
+🔒 If the mediaRecord is associated with coursed the user must be a member of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">ids</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecords</strong> ⚠️</td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+
+Returns all media records of the system.
+🔒 The user must be a super-user, otherwise an exception is thrown.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+In production there should probably be no way to get all media records of the system.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>userMediaRecords</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+
+Returns all media records which the current user created.
+🔒 If the mediaRecord is associated with coursed the user must be a member of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecordsByContentIds</strong></td>
+<td valign="top">[[<a href="#mediarecord">MediaRecord</a>!]!]!</td>
+<td>
+
+
+Returns the media records associated the given content IDs as a list of lists where each sublist contains
+the media records associated with the content ID at the same index in the input list
+🔒 If the mediaRecord is associated with coursed the user must be a member of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">contentIds</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecordsForCourses</strong></td>
+<td valign="top">[[<a href="#mediarecord">MediaRecord</a>!]!]!</td>
+<td>
+
+
+Returns all media records for the given CourseIds
+🔒 If the mediaRecord is associated with coursed the user must be a member of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">courseIds</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecordsForUsers</strong></td>
+<td valign="top">[[<a href="#mediarecord">MediaRecord</a>!]!]!</td>
+<td>
+
+
+Returns all media records which were created by the users.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">userIds</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>contentsByCourseIds</strong></td>
+<td valign="top">[[<a href="#content">Content</a>!]!]</td>
+<td>
+
+
+Retrieves all existing contents for a given course.
+🔒 The user must have access to the courses with the given ids to access their contents, otherwise an error is thrown.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">courseIds</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>contentsByIds</strong></td>
@@ -479,6 +489,8 @@ get all contents
 
 
 Get contents by ids. Throws an error if any of the ids are not found.
+🔒 The user must have access to the courses containing the contents with the given ids to access their contents,
+otherwise an error is thrown.
 
 </td>
 </tr>
@@ -494,6 +506,8 @@ Get contents by ids. Throws an error if any of the ids are not found.
 
 
 Get contents by ids. If any of the given ids are not found, the corresponding element in the result list will be null.
+🔒 The user must have access to the courses containing the contents with the given ids, otherwise null is returned
+for the respective contents.
 
 </td>
 </tr>
@@ -508,38 +522,9 @@ Get contents by ids. If any of the given ids are not found, the corresponding el
 <td>
 
 
-get contents by chapter ids. Returns a list containing sublists, where each sublist contains all contents
+Get contents by chapter ids. Returns a list containing sublists, where each sublist contains all contents
 associated with that chapter
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">chapterIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>sectionsByChapterIds</strong></td>
-<td valign="top">[[<a href="#section">Section</a>!]!]!</td>
-<td>
-
-
-Retrieves all existing sections for multiple chapters.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">chapterIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>_internal_noauth_progressByChapterIds</strong></td>
-<td valign="top">[<a href="#compositeprogressinformation">CompositeProgressInformation</a>!]!</td>
-<td>
-
-
-Retrieve progress for multiple chapters
+🔒 The user must have access to the courses containing the chapters with the given ids, otherwise an error is thrown.
 
 </td>
 </tr>
@@ -558,6 +543,8 @@ Retrieve progress for multiple chapters
 
     Only content that the user can access will be considered.
     The contents will be ranked by suggested date, with the most overdue or most urgent content first.
+
+    🔒 The user must have access to the courses containing the chapters with the given ids, otherwise an error is thrown.
 
 </td>
 </tr>
@@ -594,127 +581,20 @@ also containing suggestions for media content (which do not have a skill type).
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>_internal_noauth_achievableSkillTypesByChapterIds</strong></td>
-<td valign="top">[[<a href="#skilltype">SkillType</a>!]!]!</td>
+<td colspan="2" valign="top"><strong>findQuizzesByAssessmentIds</strong></td>
+<td valign="top">[<a href="#quiz">Quiz</a>]!</td>
 <td>
 
 
-Retrieves all skill types that are achievable for the given chapters.
-Each chapter will have its own list of skill types (batching query).
+Get quiz by assessment ID.
+If any of the assessment IDs are not found, the corresponding quiz will be null.
+🔒 The user must be enrolled in the course the quizzes belong to to access them. Otherwise null is returned for
+an quiz if the user has no access to it.
 
 </td>
 </tr>
 <tr>
-<td colspan="2" align="right" valign="top">chapterIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>userSkillLevelsByChapterIds</strong></td>
-<td valign="top">[<a href="#skilllevels">SkillLevels</a>!]!</td>
-<td>
-
-
-Get the skill levels of the current user for all skill types for a list of chapter ids.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">chapterIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>skillLevelsForUserByChapterIds</strong></td>
-<td valign="top">[<a href="#skilllevels">SkillLevels</a>!]!</td>
-<td>
-
-
-Get the skill levels of the specified user for all skill types for a list of chapter ids.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">chapterIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">userId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>mediaRecordsByIds</strong></td>
-<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
-<td>
-
-
-Returns the media records with the given IDs. Throws an error if a MediaRecord corresponding to a given ID
-cannot be found.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">ids</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>findMediaRecordsByIds</strong></td>
-<td valign="top">[<a href="#mediarecord">MediaRecord</a>]!</td>
-<td>
-
-
-Like mediaRecordsByIds() returns the media records with the given IDs, but instead of throwing an error if an ID
-cannot be found, it instead returns NULL for that media record.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">ids</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>mediaRecords</strong> ⚠️</td>
-<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
-<td>
-
-
-Returns all media records of the system.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-In production there should probably be no way to get all media records of the system.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>userMediaRecords</strong></td>
-<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
-<td>
-
-
-Returns all media records which the current user created.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>mediaRecordsByContentIds</strong></td>
-<td valign="top">[[<a href="#mediarecord">MediaRecord</a>!]!]!</td>
-<td>
-
-
-Returns the media records associated the given content IDs as a list of lists where each sublist contains
-the media records associated with the content ID at the same index in the input list
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">contentIds</td>
+<td colspan="2" align="right" valign="top">assessmentIds</td>
 <td valign="top">[<a href="#uuid">UUID</a>!]!</td>
 <td></td>
 </tr>
@@ -733,82 +613,9 @@ the media records associated with the content ID at the same index in the input 
 </thead>
 <tbody>
 <tr>
-<td colspan="2" valign="top"><strong>createFlashcardSet</strong></td>
-<td valign="top"><a href="#flashcardset">FlashcardSet</a>!</td>
-<td>
-
-
-Creates a new flashcard set.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">assessmentId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createflashcardsetinput">CreateFlashcardSetInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>deleteFlashcardSet</strong> ⚠️</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td>
-
-
-Deletes a flashcard set. Throws an error if the flashcard set does not exist.
-The contained flashcards are deleted as well.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Only for development, will be removed in production. Use deleteAssessment in contents service instead.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>mutateFlashcardSet</strong></td>
-<td valign="top"><a href="#flashcardsetmutation">FlashcardSetMutation</a>!</td>
-<td>
-
-
-Modify a flashcard set.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">assessmentId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>logFlashcardLearned</strong></td>
-<td valign="top"><a href="#flashcard">Flashcard</a>!</td>
-<td>
-
-
-Logs that a user has learned a flashcard.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#logflashcardlearnedinput">LogFlashcardLearnedInput</a>!</td>
-<td></td>
-</tr>
-<tr>
 <td colspan="2" valign="top"><strong>recalculateScores</strong> ⚠️</td>
 <td valign="top"><a href="#rewardscores">RewardScores</a>!</td>
 <td>
-
 
     ONLY FOR TESTING PURPOSES. DO NOT USE IN FRONTEND. WILL BE REMOVED.
 
@@ -816,6 +623,7 @@ Logs that a user has learned a flashcard.
     This is done automatically at some time in the night.
 
     The purpose of this mutation is to allow testing of the reward score and demonstrate the functionality.
+    🔒 The user be an admin in the course with the given courseId to perform this action.
 
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
@@ -827,6 +635,38 @@ Only for testing purposes. Will be removed.
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">courseId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">userId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>recalculateLevels</strong> ⚠️</td>
+<td valign="top"><a href="#skilllevels">SkillLevels</a>!</td>
+<td>
+
+
+ONLY FOR TESTING PURPOSES. DO NOT USE IN FRONTEND. WILL BE REMOVED.
+
+Triggers the recalculation of the skill level of the user.
+This is done automatically at some time in the night.
+
+The purpose of this mutation is to allow testing of the skill level score and demonstrate the functionality.
+🔒 The user must be a super-user, otherwise an exception is thrown.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Only for testing purposes. Will be removed.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">chapterId</td>
 <td valign="top"><a href="#uuid">UUID</a>!</td>
 <td></td>
 </tr>
@@ -858,6 +698,7 @@ Creates a new course with the given input and returns the created course.
 
 Creates a new chapter with the given input and returns the created chapter.
 The course id must be a course id of an existing course.
+🔒 The user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -874,6 +715,7 @@ The course id must be a course id of an existing course.
 
 Updates an existing course with the given input and returns the updated course.
 The course id must be a course id of an existing course.
+🔒 The user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -890,6 +732,7 @@ The course id must be a course id of an existing course.
 
 Updates an existing chapter with the given input and returns the updated chapter.
 The chapter id must be a chapter id of an existing chapter.
+🔒 The user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -905,6 +748,7 @@ The chapter id must be a chapter id of an existing chapter.
 
 
 Deletes an existing course, throws an error if no course with the given id exists.
+🔒 The user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -920,6 +764,7 @@ Deletes an existing course, throws an error if no course with the given id exist
 
 
 Deletes an existing chapter, throws an error if no chapter with the given id exists.
+🔒 The user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -929,12 +774,43 @@ Deletes an existing chapter, throws an error if no chapter with the given id exi
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>joinCourse</strong></td>
+<td valign="top"><a href="#coursemembership">CourseMembership</a>!</td>
+<td>
+
+
+Lets the current user join a course as a student.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">courseId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>leaveCourse</strong></td>
+<td valign="top"><a href="#coursemembership">CourseMembership</a>!</td>
+<td>
+
+
+Lets the current user leave a course. Returns the membership that was deleted.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">courseId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>createMembership</strong></td>
 <td valign="top"><a href="#coursemembership">CourseMembership</a>!</td>
 <td>
 
 
-registers a user to a course with a role
+Adds the specified user to the specified course with the specified role.
+🔒 The calling user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -949,7 +825,8 @@ registers a user to a course with a role
 <td>
 
 
-updates the role of a user in a course
+Updates a user's membership in a course with the given input.
+🔒 The calling user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -964,7 +841,8 @@ updates the role of a user in a course
 <td>
 
 
-deletes user course link
+Removes the specified user's access to the specified course.
+🔒 The calling user must be an admin in this course to perform this action.
 
 </td>
 </tr>
@@ -974,12 +852,35 @@ deletes user course link
 <td></td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>createQuiz</strong></td>
-<td valign="top"><a href="#quiz">Quiz</a>!</td>
+<td colspan="2" valign="top"><strong>deleteFlashcardSet</strong> ⚠️</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
 <td>
 
 
-Create a quiz.
+Deletes a flashcard set. Throws an error if the flashcard set does not exist.
+The contained flashcards are deleted as well.
+
+<p>⚠️ <strong>DEPRECATED</strong></p>
+<blockquote>
+
+Only for development, will be removed in production. Use deleteAssessment in contents service instead.
+
+</blockquote>
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mutateFlashcardSet</strong></td>
+<td valign="top"><a href="#flashcardsetmutation">FlashcardSetMutation</a>!</td>
+<td>
+
+
+Modify a flashcard set.
+🔒 The user must be an admin the course the flashcard set is in to perform this action.
 
 </td>
 </tr>
@@ -989,8 +890,163 @@ Create a quiz.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>logFlashcardLearned</strong></td>
+<td valign="top"><a href="#flashcardlearnedfeedback">FlashcardLearnedFeedback</a>!</td>
+<td>
+
+
+Logs that a user has learned a flashcard.
+🔒 The user must be enrolled in the course the flashcard set is in to perform this action.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createquizinput">CreateQuizInput</a>!</td>
+<td valign="top"><a href="#logflashcardlearnedinput">LogFlashcardLearnedInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createMediaRecord</strong></td>
+<td valign="top"><a href="#mediarecord">MediaRecord</a>!</td>
+<td>
+
+
+Creates a new media record
+🔒 The user must have the "course-creator" role to perform this action.
+🔒 If the mediaRecord is associated with courses the user must be an administrator of all courses or a super-user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createmediarecordinput">CreateMediaRecordInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>updateMediaRecord</strong></td>
+<td valign="top"><a href="#mediarecord">MediaRecord</a>!</td>
+<td>
+
+
+Updates an existing media record with the given UUID
+🔒 If the mediaRecord is associated with courses the user must be an administrator of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#updatemediarecordinput">UpdateMediaRecordInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>deleteMediaRecord</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+
+Deletes the media record with the given UUID
+🔒 If the mediaRecord is associated with courses the user must be an administrator of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">id</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>setLinkedMediaRecordsForContent</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+
+For a given MediaContent, sets the linked media records of it to the ones with the given UUIDs.
+This means that for the content, all already linked media records are removed and replaced by the given ones.
+🔒 If the mediaRecord is associated with courses the user must be an administrator of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">contentId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">mediaRecordIds</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>logMediaRecordWorkedOn</strong></td>
+<td valign="top"><a href="#mediarecord">MediaRecord</a>!</td>
+<td>
+
+    Logs that a media has been worked on by the current user.
+    See https://gits-enpro.readthedocs.io/en/latest/dev-manuals/gamification/userProgress.html
+
+    Possible side effects:
+    When all media records of a content have been worked on by a user,
+    a user-progress event is emitted for the content.
+    🔒 If the mediaRecord is associated with courses the user must be a member of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">mediaRecordId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>setMediaRecordsForCourse</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+
+Add the MediaRecords with the given UUIDS to the Course with the given UUID.
+🔒 If the mediaRecord is associated with courses the user must be an administrator of at least one of the courses.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">courseId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">mediaRecordIds</td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mutateContent</strong></td>
+<td valign="top"><a href="#contentmutation">ContentMutation</a>!</td>
+<td>
+
+
+Modify Content
+🔒 The user must have admin access to the course containing the section to perform this action.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">contentId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mutateSection</strong></td>
+<td valign="top"><a href="#sectionmutation">SectionMutation</a>!</td>
+<td>
+
+
+Modify the section with the given id.
+🔒 The user must have admin access to the course containing the section to perform this action.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">sectionId</td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1000,6 +1056,7 @@ Create a quiz.
 
 
 Modify a quiz.
+🔒 The user must be an admin the course the quiz is in to perform this action.
 
 </td>
 </tr>
@@ -1019,7 +1076,8 @@ Delete a quiz.
 <p>⚠️ <strong>DEPRECATED</strong></p>
 <blockquote>
 
-Only for development, will be removed in production. Use deleteAssessment in contents service instead.
+Only use if you specifically only want to delete the quiz and not the whole assessment. Otherwise, use deleteAssessment
+in contents service instead.
 
 </blockquote>
 </td>
@@ -1031,208 +1089,18 @@ Only for development, will be removed in production. Use deleteAssessment in con
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>logQuizCompleted</strong></td>
-<td valign="top"><a href="#quiz">Quiz</a>!</td>
+<td valign="top"><a href="#quizcompletionfeedback">QuizCompletionFeedback</a>!</td>
 <td>
 
 
 Log that a multiple choice quiz is completed.
+🔒 The user must be enrolled in the course the quiz is in to perform this action.
 
 </td>
 </tr>
 <tr>
 <td colspan="2" align="right" valign="top">input</td>
 <td valign="top"><a href="#quizcompletedinput">QuizCompletedInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>createMediaContent</strong></td>
-<td valign="top"><a href="#mediacontent">MediaContent</a>!</td>
-<td>
-
-
-Create new media content
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createmediacontentinput">CreateMediaContentInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>createAssessment</strong></td>
-<td valign="top"><a href="#assessment">Assessment</a>!</td>
-<td>
-
-
-Create a new Assessment
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createassessmentinput">CreateAssessmentInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>mutateContent</strong></td>
-<td valign="top"><a href="#contentmutation">ContentMutation</a>!</td>
-<td>
-
-
-Modify Content
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">contentId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>createSection</strong></td>
-<td valign="top"><a href="#section">Section</a>!</td>
-<td>
-
-
-Create new Section
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createsectioninput">CreateSectionInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>mutateSection</strong></td>
-<td valign="top"><a href="#sectionmutation">SectionMutation</a>!</td>
-<td>
-
-
-Modify Sections
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">sectionId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>recalculateLevels</strong> ⚠️</td>
-<td valign="top"><a href="#skilllevels">SkillLevels</a>!</td>
-<td>
-
-
-  ONLY FOR TESTING PURPOSES. DO NOT USE IN FRONTEND. WILL BE REMOVED.
-
-  Triggers the recalculation of the skill level of the user.
-  This is done automatically at some time in the night.
-
-  The purpose of this mutation is to allow testing of the skill level score and demonstrate the functionality.
-
-<p>⚠️ <strong>DEPRECATED</strong></p>
-<blockquote>
-
-Only for testing purposes. Will be removed.
-
-</blockquote>
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">chapterId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">userId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>createMediaRecord</strong></td>
-<td valign="top"><a href="#mediarecord">MediaRecord</a>!</td>
-<td>
-
-
-Creates a new media record
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#createmediarecordinput">CreateMediaRecordInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>updateMediaRecord</strong></td>
-<td valign="top"><a href="#mediarecord">MediaRecord</a>!</td>
-<td>
-
-
-Updates an existing media record with the given UUID
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">input</td>
-<td valign="top"><a href="#updatemediarecordinput">UpdateMediaRecordInput</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>deleteMediaRecord</strong></td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td>
-
-
-Deletes the media record with the given UUID
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">id</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>linkMediaRecordsWithContent</strong></td>
-<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
-<td>
-
-
-Allows multiple media records to be linked/added to a content.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">contentId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">mediaRecordIds</td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td></td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>logMediaRecordWorkedOn</strong></td>
-<td valign="top"><a href="#mediarecord">MediaRecord</a>!</td>
-<td>
-
-
-    Logs that a media has been worked on by the current user.
-    See https://gits-enpro.readthedocs.io/en/latest/dev-manuals/gamification/userProgress.html
-
-    Possible side effects:
-    When all media records of a content have been worked on by a user,
-    a user-progress event is emitted for the content.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="right" valign="top">mediaRecordId</td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
 <td></td>
 </tr>
 <tr>
@@ -1290,6 +1158,20 @@ Creates a new flashcard set assessment and a new, linked flashcard set with the 
 <tr>
 <td colspan="2" align="right" valign="top">flashcardSetInput</td>
 <td valign="top"><a href="#createflashcardsetinput">CreateFlashcardSetInput</a>!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>createSection</strong></td>
+<td valign="top"><a href="#section">Section</a>!</td>
+<td>
+
+Creates a new section in a chapter.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="right" valign="top">input</td>
+<td valign="top"><a href="#createsectioninput">CreateSectionInput</a>!</td>
 <td></td>
 </tr>
 </tbody>
@@ -1555,17 +1437,38 @@ The course the chapter belongs to.
 <tr>
 <td colspan="2" valign="top"><strong>contents</strong></td>
 <td valign="top">[<a href="#content">Content</a>!]!</td>
-<td></td>
+<td>
+
+Contents of this chapter.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>contentsWithNoSection</strong></td>
+<td valign="top">[<a href="#content">Content</a>!]!</td>
+<td>
+
+Contents of this chapter which are not in any section.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>sections</strong></td>
 <td valign="top">[<a href="#section">Section</a>!]!</td>
-<td></td>
+<td>
+
+Sections of this chapter.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>skillLevels</strong></td>
 <td valign="top"><a href="#skilllevels">SkillLevels</a>!</td>
-<td></td>
+<td>
+
+The skill levels of the current user in this chapter.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>achievableSkillTypes</strong></td>
@@ -1881,6 +1784,16 @@ ID of the chapter this content is associated with
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>courseId</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+
+ID of the course this content is associated with
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>tagNames</strong></td>
 <td valign="top">[<a href="#string">String</a>!]!</td>
 <td>
@@ -2130,6 +2043,7 @@ The division of the academic calendar in which the term takes place.
 
 
 Chapters of the course. Can be filtered and sorted.
+🔒 User needs to be enrolled in the course to access this field.
 
 </td>
 </tr>
@@ -2165,14 +2079,43 @@ The sort direction for each field. If not specified, defaults to ASC.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>memberships</strong></td>
+<td valign="top">[<a href="#coursemembership">CourseMembership</a>!]!</td>
+<td>
+
+
+Course Memberships of this course. Contains information about which users are members of the course and what
+role they have in it.
+🔒 User needs to be at least an admin of the course to access this field.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>rewardScores</strong></td>
 <td valign="top"><a href="#rewardscores">RewardScores</a>!</td>
-<td></td>
+<td>
+
+The reward scores of this course for the currently logged in user.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>scoreboard</strong></td>
 <td valign="top">[<a href="#scoreboarditem">ScoreboardItem</a>!]!</td>
-<td></td>
+<td>
+
+The scoreboard containing the power scores of the members of this course.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecords</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+The media records which are linked to this course.
+
+</td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>suggestions</strong></td>
@@ -2271,6 +2214,15 @@ Course of the Course Membership
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top"><strong>user</strong></td>
+<td valign="top"><a href="#publicuserinfo">PublicUserInfo</a></td>
+<td>
+
+The user of this course membership.
+
+</td>
+</tr>
 </tbody>
 </table>
 
@@ -2298,54 +2250,6 @@ Return type for the course query. Contains the course and the pagination info.
 <td colspan="2" valign="top"><strong>pagination</strong></td>
 <td valign="top"><a href="#paginationinfo">PaginationInfo</a>!</td>
 <td></td>
-</tr>
-</tbody>
-</table>
-
-### CourseResourceAssociation
-
-
-Resources are all types of content present in a course. Each resource can be available or unavailable in a course.
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>id</strong></td>
-<td valign="top"><a href="#uuid">UUID</a>!</td>
-<td>
-
-
-UUID of the resource.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>availableCourses</strong></td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td>
-
-
-A list of course IDs a resource is presently available in
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>unAvailableCourses</strong></td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td>
-
-
-A list of course IDs a resource is presently unavailable in
-
-</td>
 </tr>
 </tbody>
 </table>
@@ -2502,6 +2406,53 @@ If userId is not provided, the progress data of the current user is returned.
 </tbody>
 </table>
 
+### FlashcardLearnedFeedback
+
+Feedback for the logFlashcardLearned mutation.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>success</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+
+Whether the flashcard was learned correctly.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>nextLearnDate</strong></td>
+<td valign="top"><a href="#datetime">DateTime</a>!</td>
+<td>
+
+
+Next date when the flashcard should be learned again.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>flashcardSetProgress</strong></td>
+<td valign="top"><a href="#flashcardsetprogress">FlashcardSetProgress</a>!</td>
+<td>
+
+
+Progress of the whole flashcard set.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### FlashcardProgressData
 
 <table>
@@ -2623,6 +2574,16 @@ This also serves as the identifier of this flashcard set.
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>courseId</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+
+Id of the course this flashcard set belongs to.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>flashcards</strong></td>
 <td valign="top">[<a href="#flashcard">Flashcard</a>!]!</td>
 <td>
@@ -2633,11 +2594,11 @@ List of flashcards in this set.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>assessment</strong></td>
-<td valign="top"><a href="#flashcardsetassessment">FlashcardSetAssessment</a></td>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#content">Content</a></td>
 <td>
 
-The assessment this FlashcardSet belongs to.
+The content this FlashcardSet belongs to.
 
 </td>
 </tr>
@@ -2796,6 +2757,41 @@ Deletes the flashcard with the specified ID. Throws an error if the flashcard do
 </tbody>
 </table>
 
+### FlashcardSetProgress
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>percentageLearned</strong></td>
+<td valign="top"><a href="#float">Float</a>!</td>
+<td>
+
+
+Percentage of how many flashcards in the set have been learned.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>correctness</strong></td>
+<td valign="top"><a href="#float">Float</a>!</td>
+<td>
+
+
+Percentage of how many flashcards have been learned correctly of the ones that have been learned.
+
+</td>
+</tr>
+</tbody>
+</table>
+
 ### FlashcardSide
 
 <table>
@@ -2944,6 +2940,16 @@ The media records linked to this media content.
 
 
 ID of the media record
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>courseIds</strong></td>
+<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
+<td>
+
+
+Ids of the courses this MediaRecord is associated with
 
 </td>
 </tr>
@@ -3533,11 +3539,21 @@ This will be different each time it is queried if questionPoolingMode is RANDOM.
 </td>
 </tr>
 <tr>
-<td colspan="2" valign="top"><strong>assessment</strong></td>
-<td valign="top"><a href="#quizassessment">QuizAssessment</a></td>
+<td colspan="2" valign="top"><strong>courseId</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
 <td>
 
-The assessment this quiz belongs to.
+
+Id of the course this quiz belongs to.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>content</strong></td>
+<td valign="top"><a href="#content">Content</a></td>
+<td>
+
+The content this quiz belongs to.
 
 </td>
 </tr>
@@ -3621,6 +3637,53 @@ Progress data of the specified user.
 
 The quiz of the assessment.
 If this is null the system is in an inconsistent state and the assessment should be deleted.
+
+</td>
+</tr>
+</tbody>
+</table>
+
+### QuizCompletionFeedback
+
+Feedback data when `logQuizCompletion` is called.
+
+<table>
+<thead>
+<tr>
+<th align="left">Field</th>
+<th align="right">Argument</th>
+<th align="left">Type</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="2" valign="top"><strong>success</strong></td>
+<td valign="top"><a href="#boolean">Boolean</a>!</td>
+<td>
+
+
+Whether the quiz was passed or not.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>correctness</strong></td>
+<td valign="top"><a href="#float">Float</a>!</td>
+<td>
+
+
+The number of questions that were answered correctly.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>hintsUsed</strong></td>
+<td valign="top"><a href="#int">Int</a>!</td>
+<td>
+
+
+The number of hints that were used.
 
 </td>
 </tr>
@@ -3914,41 +3977,6 @@ Will only be considered if questionPoolingMode is RANDOM.
 </tbody>
 </table>
 
-### ResourceMarkdown
-
-<table>
-<thead>
-<tr>
-<th align="left">Field</th>
-<th align="right">Argument</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>text</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-
-The raw ResourceMarkdown text.
-
-</td>
-</tr>
-<tr>
-<td colspan="2" valign="top"><strong>referencedMediaRecordIds</strong></td>
-<td valign="top">[<a href="#uuid">UUID</a>!]!</td>
-<td>
-
-
-Ids of MediaRecords referenced in the ResourceMarkdown text in order.
-
-</td>
-</tr>
-</tbody>
-</table>
-
 ### RewardLogItem
 
 
@@ -4221,6 +4249,16 @@ Unique identifier of the Section Object
 </td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>courseId</strong></td>
+<td valign="top"><a href="#uuid">UUID</a>!</td>
+<td>
+
+
+Id of the Course the Section is located in.
+
+</td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>name</strong></td>
 <td valign="top"><a href="#string">String</a>!</td>
 <td>
@@ -4463,21 +4501,21 @@ Optional hint for the question, in SlateJS JSON format.
 <tbody>
 <tr>
 <td colspan="2" valign="top"><strong>left</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#json">JSON</a>!</td>
 <td>
 
 
-The left side of the association.
+The left side of the association, in SlateJS JSON format.
 
 </td>
 </tr>
 <tr>
 <td colspan="2" valign="top"><strong>right</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
+<td valign="top"><a href="#json">JSON</a>!</td>
 <td>
 
 
-The right side of the association.
+The right side of the association, in SlateJS JSON format.
 
 </td>
 </tr>
@@ -4813,11 +4851,35 @@ The type of suggestion.
 <td></td>
 </tr>
 <tr>
+<td colspan="2" valign="top"><strong>realmRoles</strong></td>
+<td valign="top">[<a href="#globaluserrole">GlobalUserRole</a>!]!</td>
+<td></td>
+</tr>
+<tr>
 <td colspan="2" valign="top"><strong>courseMemberships</strong></td>
 <td valign="top">[<a href="#coursemembership">CourseMembership</a>!]!</td>
 <td>
 
 The course memberships of the user.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>availableCourseMemberships</strong></td>
+<td valign="top">[<a href="#coursemembership">CourseMembership</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>unavailableCourseMemberships</strong></td>
+<td valign="top">[<a href="#coursemembership">CourseMembership</a>!]!</td>
+<td></td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>mediaRecords</strong></td>
+<td valign="top">[<a href="#mediarecord">MediaRecord</a>!]!</td>
+<td>
+
+Media records of this user.
 
 </td>
 </tr>
@@ -6544,30 +6606,6 @@ List of questions that were answered in the quiz.
 </tbody>
 </table>
 
-### ResourceMarkdownInput
-
-<table>
-<thead>
-<tr>
-<th colspan="2" align="left">Field</th>
-<th align="left">Type</th>
-<th align="left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td colspan="2" valign="top"><strong>text</strong></td>
-<td valign="top"><a href="#string">String</a>!</td>
-<td>
-
-
-The raw ResourceMarkdown text.
-
-</td>
-</tr>
-</tbody>
-</table>
-
 ### StringFilter
 
 
@@ -7007,6 +7045,26 @@ The new end date of the course, ISO 8601 format.
 
 
 The new published status of the course.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>startYear</strong></td>
+<td valign="top"><a href="#int">Int</a></td>
+<td>
+
+
+The year in which the term starts.
+
+</td>
+</tr>
+<tr>
+<td colspan="2" valign="top"><strong>yearDivision</strong></td>
+<td valign="top"><a href="#yeardivision">YearDivision</a></td>
+<td>
+
+
+The division of the academic calendar in which the term takes place.
 
 </td>
 </tr>
@@ -7467,6 +7525,25 @@ Type of the content
 </tr>
 <tr>
 <td valign="top"><strong>QUIZ</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+### GlobalUserRole
+
+<table>
+<thead>
+<th align="left">Value</th>
+<th align="left">Description</th>
+</thead>
+<tbody>
+<tr>
+<td valign="top"><strong>SUPER_USER</strong></td>
+<td></td>
+</tr>
+<tr>
+<td valign="top"><strong>COURSE_CREATOR</strong></td>
 <td></td>
 </tr>
 </tbody>

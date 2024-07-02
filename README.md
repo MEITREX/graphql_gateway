@@ -1,9 +1,47 @@
 # graphql_gateway
-A gateway which uses graphql mesh to split a query into smaller queries to the different microservices.
+The gateway provides a unified API to access the functionality of the MEITREX backend.
 
-## API description
+The gateway is run as a [GraphQL Mesh](https://the-guild.dev/graphql/mesh) server which merges the GraphQL schemas of the different microservices into one unified schema.
+
+More information on the basic idea of our setup using GraphQL Mesh can be found [here](../backend/graphql.md).
+
+## API Documentation
 
 See [api.md](api.md).
+
+## Usage
+
+**Please note that currently all services need to be running during startup of the Gateway to allow the Gateway to fetch the services' schemas. This makes sense during the development phase but in a production environment the schemas should be imported to the gateway via the services' schema files to improve system robustness when some services are offline during gateway startup.**
+
+### Docker Environment
+As the gateway is useless without any other services, it is recommended you run it via the [gits_backend repository](https://github.com/MEITREX/backend).
+
+### Running the Gateway Standalone
+A `docker-compose` file is provided which can be used to run the gateway via a terminal using `docker compose up`.
+
+The gateway expects environment variables to be set which provide relevant configuration information for the gateway to run. The basic `docker-compose` file is set up to set these env variables for a configuration in which the other microservices are running on their default ports inside of the local docker network.
+
+If the gateway is to be run without the `docker-compose` file, these environment variables have to be set by other means.
+
+### Changing Configuration
+
+Changing the hostname and port of the gateway can be achieved by modifying the relevant environment variables, located inside the `docker-compose` file.
+
+If ports of the other microservices are changed or microservices are being run on another address, the environment variables for the different microservices, located inside the `environment` section of the `docker-compose` file, need to be changed.
+
+## Adding More Microservices to the Gateway
+
+Please take a look at the [GraphQL Mesh Documentation](https://the-guild.dev/graphql/mesh/docs/getting-started/your-first-mesh-gateway).
+
+Sources (i.e. our different microservices) are defined at the top of the `.meshrc.yaml` file, inside the `sources` section.
+
+The gateway stitches together the schemas provided by the sources provided.
+
+The `additionalTypeDefs` section defines modifications to the stiched-together GraphQL schema. Here, fields are added and relevant information is provided which the gateway uses to populate the fields with data.
+
+For example, a `contents` field is added to the Chapter type. This field's data is retrieved by sending a `contentsByChapterIds` Query to the `ContentService` source, where the query's `chapterIds` parameter is filled with the value of the `id`-field of the current `Chapter` object. 
+
+The `additionalResolvers` section defines code for custom GraphQL queries which are implemented in TypeScript files in the corresponding folder.
 
 ## Environment variables
 
@@ -29,14 +67,3 @@ See [api.md](api.md).
 | Name                   | Description                        | Value in Dev Environment                                                   | Value in Prod Environment                                           |
 |------------------------|------------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
 | DAPR_GRPC_PORT         | Dapr gRPC Port                     | -                                                                          | 50001                                                               |
-
-## Installation
-
-1. Requires pnpm package manager to run. Install pnpm.
-2. Open a terminal in the root folder of the repository and run `pnpm install`
-
-## Usage
-
-1. Start all services the gateway needs (They need to be running before you start the gateway!)
-2. Start the gateway with `pnpm start --port <your_favorite_port>`
-3. The gateway will automatically fetch the services' GraphQL scheme using introspection and construct the unified scheme using the information provided in the `.meshrc.yaml` file
