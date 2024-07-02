@@ -91,12 +91,8 @@ const resolvers: Resolvers = {
                     info});
 
                 let questionInput=_args.questionInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        questionInput.itemId= item.id;
-                        break;
-                    }
-                }
+                questionInput.itemId= updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
+
                 let selectionSetQuiz=`{_internal_noauth_addMultipleChoiceQuestion(input: {
                     itemId: "${questionInput.itemId}",
                     ${questionInput.number != null ? `number:${questionInput.number},` : ''}
@@ -159,13 +155,9 @@ const resolvers: Resolvers = {
                     context,
                     info
                     });
+            
                 let returnItem;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        returnItem= item;
-                        break;
-                    }
-                }
+                returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
                 let quizOutput = {
                     assessmentId:question._internal_noauth_addMultipleChoiceQuestion.assessmentId,
                     questionPool:question._internal_noauth_addMultipleChoiceQuestion.questionPool,
@@ -432,13 +424,9 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     context,
                     info});
 
+            
                 let questionInput=_args.questionInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        questionInput.itemId= item.id;
-                        break;
-                    }
-                }
+                questionInput.itemId= updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
                 let selectionSetQuiz = `{_internal_noauth_addClozeQuestion(input: {
                     itemId: "${questionInput.itemId}",
                     ${questionInput.number != null ? `number:${questionInput.number},` : ''}
@@ -513,12 +501,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     info
                     });
                 let returnItem;
-                    for (let item of updatedItems.updateAssessment.items) {
-                        if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                            returnItem= item;
-                            break;
-                        }
-                    }
+                returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
                 let quizOutput = {
                     assessmentId:question._internal_noauth_addClozeQuestion.assessmentId,
                     questionPool:question._internal_noauth_addClozeQuestion.questionPool,
@@ -796,14 +779,9 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     selectionSet:selectionSet, 
                     context,
                     info});
+                
                 let questionInput=_args.questionInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        questionInput.itemId= item.id;
-                        break;
-                    }
-                }
-
+                questionInput.itemId= updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
 
                 let selectionSetQuiz=`{_internal_noauth_addAssociationQuestion(input: {
                     itemId: "${questionInput.itemId}",
@@ -869,15 +847,8 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     info
                     });
 
-                let returnItem;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        returnItem= item;
-                        break;
-                    }
-                }
-                console.log(question);
-                console.log(question._internal_noauth_addAssociationQuestion);
+                    let returnItem;
+                    returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
                 let quizOutput = {
                     assessmentId: question._internal_noauth_addAssociationQuestion.assessmentId,
                     questionPool: question._internal_noauth_addAssociationQuestion.questionPool,
@@ -1408,12 +1379,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     info});
 
                 let questionInput=_args.questionInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        questionInput.itemId= item.id;
-                        break;
-                    }
-                }
+                questionInput.itemId= updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
                 let selectionSetQuiz= `{
                     _internal_noauth_addNumericQuestion(input: {
                       itemId: "${questionInput.itemId}",
@@ -1660,12 +1626,7 @@ let selectionSetQuiz=`{_internal_noauth_updateMultipleChoiceQuestion(input: {
                     info});
 
                 let questionInput=_args.questionInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        questionInput.itemId= item.id;
-                        break;
-                    }
-                }
+                questionInput.itemId= updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
                 let selectionSetQuiz= `{
                     _internal_noauth_addSelfAssessmentQuestion(input: {
                       itemId: "${questionInput.itemId}",

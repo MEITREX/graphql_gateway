@@ -228,6 +228,7 @@ const resolvers: Resolvers = {
                     break;
                 }
             }
+            flashcardInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
             let selectionSetFlashcard=`{_internal_noauth_createFlashcard(input: {
                 itemId: "${flashcardInput.itemId}",
                 sides: [
@@ -252,18 +253,11 @@ const resolvers: Resolvers = {
                  args: {
                     assessmentId:_args.assessmentId
                  },
-                 // we need to define a selection set manually here, otherwise it thinks we don't need any data
-                 // from this mutation and it won't actually be executed
                  selectionSet: selectionSetFlashcard,
                  context,
                 info});
             let returnItem;
-            for (let item of updatedItems.updateAssessment.items) {
-                if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                    returnItem= item;
-                    break;
-                }
-            }
+            returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
             let flashcardOutput = {
                 flashcard:flashcard._internal_noauth_createFlashcard,
                 item:returnItem
