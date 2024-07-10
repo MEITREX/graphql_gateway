@@ -19,7 +19,7 @@ extend type UserInfo {
     requiredSelectionSet: "{ id }",
     sourceArgs: {
       userId: "{root.id}",
-      availabilityFilter: "true"
+      availabilityFilter: true
     }
   )
 
@@ -30,7 +30,7 @@ extend type UserInfo {
     requiredSelectionSet: "{ id }",
     sourceArgs: {
       userId: "{root.id}",
-      availabilityFilter: "false"
+      availabilityFilter: false
     }
   )
 
