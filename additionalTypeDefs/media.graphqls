@@ -1,0 +1,3 @@
+extend type Query {
+    semanticSearch(queryText: String!, count: Int! = 10): [SemanticSearchResult!]! # resolved in media.ts
+}
