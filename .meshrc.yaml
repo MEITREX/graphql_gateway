@@ -50,15 +50,23 @@ sources:
         endpoint: "{env.SKILLLEVEL_SERVICE_URL}"
         operationHeaders:
           CurrentUser: "{context.currentUserJson}"
+  - name: DocprocaiService
+    handler:
+      graphql:
+        endpoint: "{env.DOCPROCAI_SERVICE_URL}"
+        operationHeaders:
+          CurrentUser: "{context.currentUserJson}"
 additionalTypeDefs:
   - "./additionalTypeDefs/content.graphqls"
   - "./additionalTypeDefs/course.graphqls"
   - "./additionalTypeDefs/rewards.graphqls"
   - "./additionalTypeDefs/skill_level.graphqls"
   - "./additionalTypeDefs/user.graphqls"
+  - "./additionalTypeDefs/media.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
+  - "./additionalResolvers/media.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
