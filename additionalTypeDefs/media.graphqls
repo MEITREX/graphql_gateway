@@ -7,8 +7,8 @@ extend type SemanticSearchDocumentResult {
       sourceName: "MediaService",
       sourceTypeName: "Query",
       sourceFieldName: "mediaRecordsByIds",
-      keyField: "id",
-      keysArg: "contentIds"
+      keyField: "mediaRecordId",
+      keysArg: "ids"
     )
 }
 
@@ -17,7 +17,7 @@ extend type SemanticSearchVideoResult {
       sourceName: "MediaService",
       sourceTypeName: "Query",
       sourceFieldName: "mediaRecordsByIds",
-      keyField: "id",
-      keysArg: "contentIds"
+      keyField: "mediaRecordId",
+      keysArg: "ids"
     )
 }
