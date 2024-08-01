@@ -1,0 +1,19 @@
+
+
+extend type FlashcardSetMutation{
+        """
+  Creates a new flashcard and the linked item
+  """
+  createFlashcard(item:ItemInput!,assessmentId:UUID!,flashcardInput:CreateFlashcardInput!):FlashcardOutput! # resolved in flashcard.ts
+    """
+  Creates a new flashcard and the linked item
+  """
+  updateFlashcard(item:ItemInput!,assessmentId:UUID!,flashcardInput:UpdateFlashcardInput!):FlashcardOutput! # resolved in flashcard.ts
+}
+##when a flashcard is created or changed, also the item information are changed, these type combines the flashcard and the changed information
+type FlashcardOutput{
+  
+  flashcard: Flashcard!
+
+  item: Item!
+}

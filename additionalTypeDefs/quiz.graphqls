@@ -1,0 +1,65 @@
+extend type QuizMutation {
+    
+  """
+  Add a multiple choice question to the quiz questions, at the end of the list.
+  """
+  addMultipleChoiceQuestion(questionInput: CreateMultipleChoiceQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+
+  """
+  Update a multiple choice question in the quiz questions.
+  """
+  updateMultipleChoiceQuestion(questionInput: UpdateMultipleChoiceQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+
+  """
+  Add a cloze question to the quiz questions, at the end of the list.
+  """
+  addClozeQuestion(questionInput: CreateClozeQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+  """
+  Update a cloze question in the quiz questions.
+  """
+  updateClozeQuestion(questionInput: UpdateClozeQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+
+  """
+  Add an association question to the quiz questions, at the end of the list.
+  """
+  addAssociationQuestion(questionInput: CreateAssociationQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+  """
+  Update an association question in the quiz questions.
+  """
+  updateAssociationQuestion(questionInput: UpdateAssociationQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+
+  """
+  Add an free text question with exact answer to the quiz questions, at the end of the list.
+  """
+  addExactAnswerQuestion(questionInput: CreateExactAnswerQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+  """
+  Update an free text question with exact answer in the quiz questions.
+  """
+  updateExactAnswerQuestion(questionInput:  UpdateExactAnswerQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+  """
+  Add a numeric question to the quiz questions, at the end of the list.
+  """
+  addNumericQuestion(questionInput: CreateNumericQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+  """
+  Update a numeric question in the quiz questions.
+  """
+  updateNumericQuestion(questionInput: UpdateNumericQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+
+  """
+  Add a self assessment question to the quiz questions, at the end of the list.
+  """
+  addSelfAssessmentQuestion(questionInput: CreateSelfAssessmentQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+  """
+  Update a self assessment question in the quiz questions.
+  """
+  updateSelfAssessmentQuestion(questionInput: UpdateSelfAssessmentQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
+    
+}
+type QuizOutput{
+  
+  assessmentId: UUID!
+
+  questionPool:[Question!]!
+
+  item: Item!
+}

@@ -57,6 +57,16 @@ extend type Course {
   The progress of the current user in this course.
   """
   userProgress: CompositeProgressInformation! # resolved in course.ts
+
+  skills: [Skill!]! @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_achievableSkillsByCourseIds",
+    keyField: "id",
+    keysArg: "courseIds"
+  )
+
+
 }
 
 extend type Chapter {
@@ -69,6 +79,8 @@ extend type Chapter {
     sourceFieldName: "contentsByChapterIds",
     keyField: "id",
     keysArg: "chapterIds"
+
+
   )
 
   """
@@ -89,17 +101,6 @@ extend type Chapter {
     sourceName: "ContentService",
     sourceTypeName: "Query",
     sourceFieldName: "_internal_noauth_sectionsByChapterIds",
-    keyField: "id",
-    keysArg: "chapterIds"
-  )
-
-  """
-  The skill levels of the current user in this chapter.
-  """
-  skillLevels: SkillLevels! @resolveTo(
-    sourceName: "SkilllevelService",
-    sourceTypeName: "Query",
-    sourceFieldName: "_internal_noauth_userSkillLevelsByChapterIds",
     keyField: "id",
     keysArg: "chapterIds"
   )
@@ -126,6 +127,15 @@ extend type Chapter {
     keyField: "id",
     keysArg: "chapterIds"
   )
+
+
+  skills: [Skill]! @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_achievableSkillsByChapterIds",
+    keyField: "id",
+    keysArg: "chapterIds"
+  )
 }
 
 extend type CourseMembership {
@@ -146,4 +156,17 @@ extend type Mutation {
   Creates a new section in a chapter.
   """
   createSection(input: CreateSectionInput!): Section! # resolved in course.ts
+}
+
+extend type Skill {
+  """
+  The skill levels of the current user in this chapter.
+  """
+  skillLevels: SkillLevels @resolveTo(
+    sourceName: "SkilllevelService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_usersSkillLevelBySkillIds",
+    keyField: "id",
+    keysArg: "skillIds"
+  )
 }

@@ -62,10 +62,14 @@ additionalTypeDefs:
   - "./additionalTypeDefs/rewards.graphqls"
   - "./additionalTypeDefs/skill_level.graphqls"
   - "./additionalTypeDefs/user.graphqls"
+  - "./additionalTypeDefs/flashcard.graphqls"
+  - "./additionalTypeDefs/quiz.graphqls"
   - "./additionalTypeDefs/media.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
+  - "./additionalResolvers/flashcard.ts"
+  - "./additionalResolvers/quiz.ts"
   - "./additionalResolvers/media.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
