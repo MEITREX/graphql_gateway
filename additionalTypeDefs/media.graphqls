@@ -1,3 +1,23 @@
 extend type Query {
     semanticSearch(queryText: String!, count: Int! = 10): [SemanticSearchResult!]! # resolved in media.ts
 }
+
+extend type SemanticSearchDocumentResult {
+    mediaRecord: MediaRecord! @resolveTo(
+      sourceName: "MediaService",
+      sourceTypeName: "Query",
+      sourceFieldName: "mediaRecordsByIds",
+      keyField: "mediaRecordId",
+      keysArg: "ids"
+    )
+}
+
+extend type SemanticSearchVideoResult {
+    mediaRecord: MediaRecord! @resolveTo(
+      sourceName: "MediaService",
+      sourceTypeName: "Query",
+      sourceFieldName: "mediaRecordsByIds",
+      keyField: "mediaRecordId",
+      keysArg: "ids"
+    )
+}
