@@ -19,6 +19,16 @@ extend type MediaContent {
     keyField: "id",
     keysArg: "contentIds"
   )
+
+  segmentLinks: [MediaRecordSegmentLink!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getMediaRecordLinksForContent",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      contentId: "{root.id}"
+    }
+  )
 }
 
 extend type FlashcardSetAssessment {
