@@ -2,7 +2,7 @@ extend type Query {
     semanticSearch(queryText: String!, count: Int! = 10): [SemanticSearchResult!]! # resolved in media.ts
 }
 
-extend type SemanticSearchDocumentResult {
+extend type DocumentRecordSegment {
     mediaRecord: MediaRecord! @resolveTo(
       sourceName: "MediaService",
       sourceTypeName: "Query",
@@ -12,7 +12,7 @@ extend type SemanticSearchDocumentResult {
     )
 }
 
-extend type SemanticSearchVideoResult {
+extend type VideoRecordSegment {
     mediaRecord: MediaRecord! @resolveTo(
       sourceName: "MediaService",
       sourceTypeName: "Query",
@@ -20,4 +20,20 @@ extend type SemanticSearchVideoResult {
       keyField: "mediaRecordId",
       keysArg: "ids"
     )
+}
+
+extend type MediaRecord {
+  """
+  Returns the contents this media record is linked to. If the user does not have access to a particular
+  content, null will be returned in its place.
+  """
+  contents: [Content]! @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "findContentsByIds",
+    requiredSelectionSet: "{ contentIds }",
+    sourceArgs: {
+      ids: "{root.contentIds}"
+    }
+  )
 }
