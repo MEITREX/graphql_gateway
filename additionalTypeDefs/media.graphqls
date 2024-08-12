@@ -36,4 +36,31 @@ extend type MediaRecord {
       ids: "{root.contentIds}"
     }
   )
+
+  """
+  Returns the segments this media record consists of.
+  """
+  segments: [MediaRecordSegment!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getMediaRecordSegments",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      mediaRecordId: "{root.id}"
+    }
+  )
+
+  """
+  Returns a closed captions string formatted in WebVTT format for the media record if it is of type video,
+  returns null otherwise.
+  """
+  closedCaptions: String @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getMediaRecordCaptions",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      mediaRecordId: "{root.id}"
+    }
+  )
 }
