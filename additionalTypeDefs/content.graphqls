@@ -84,6 +84,16 @@ extend type Quiz {
   )
 }
 
+extend type ContentMetadata {
+  course: Course! @resolveTo(
+    sourceName: "CourseService",
+    sourceTypeName: "Query",
+    sourceFieldName: "coursesByIds",
+    keyField: "courseId",
+    keysArg: "ids"
+  )
+}
+
 extend type Mutation {
   """
   Creates a new media content and links the given media records to it.
