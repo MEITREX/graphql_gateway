@@ -85,11 +85,24 @@ extend type Quiz {
 }
 
 extend type ContentMetadata {
+  """
+  The course this content belongs to.
+  """
   course: Course! @resolveTo(
     sourceName: "CourseService",
     sourceTypeName: "Query",
     sourceFieldName: "coursesByIds",
     keyField: "courseId",
+    keysArg: "ids"
+  )
+  """
+  The chapter this content belongs to.
+  """
+  chapter: Chapter! @resolveTo(
+    sourceName: "CourseService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_chaptersByIds",
+    keyField: "chapterId",
     keysArg: "ids"
   )
 }

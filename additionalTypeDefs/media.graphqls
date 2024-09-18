@@ -1,15 +1,19 @@
 extend type Query {
-    semanticSearch(queryText: String!, count: Int! = 10): [SemanticSearchResult!]! # resolved in media.ts
+  """
+  Performs a semantic search with the specified search term. Returns at most `count` results. If a courseWhitelist is 
+  provided, only results from the specified courses will be returned.
+  """
+  semanticSearch(queryText: String!, count: Int! = 10, courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in media.ts
 }
 
 extend type DocumentRecordSegment {
-    mediaRecord: MediaRecord! @resolveTo(
-      sourceName: "MediaService",
-      sourceTypeName: "Query",
-      sourceFieldName: "mediaRecordsByIds",
-      keyField: "mediaRecordId",
-      keysArg: "ids"
-    )
+  mediaRecord: MediaRecord! @resolveTo(
+    sourceName: "MediaService",
+    sourceTypeName: "Query",
+    sourceFieldName: "mediaRecordsByIds",
+    keyField: "mediaRecordId",
+    keysArg: "ids"
+  )
 }
 
 extend type VideoRecordSegment {
