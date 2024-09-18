@@ -5,7 +5,7 @@ const resolvers: Resolvers = {
         semanticSearch: {
             async resolve(root, args, context, info) {
                 // get a list of all courses the user has access to
-                let courseMemberships = await context.CourseService.Query._internal_noauth_courseMembershipsByUserId({
+                let courseMembershipsRes = await context.CourseService.Query._internal_noauth_courseMembershipsByUserId({
                     root,
                     args: {
                         userId: context.currentUser.id,
@@ -18,11 +18,14 @@ const resolvers: Resolvers = {
                     `
                 });
 
-                // get a list of all media records in the courses the user has access to
-                let mediaRecords = await context.MediaService.Query._internal_noauth_mediaRecordsForCourses({
+                // get a list of all media records in the courses the user has access to and, in case a whitelist is 
+                // provided, only consider the courses in the whitelist
+                let mediaRecordsRes = await context.MediaService.Query._internal_noauth_mediaRecordsForCourses({
                     root,
                     args: {
-                        courseIds: courseMemberships.map((membership) => membership.courseId)
+                        courseIds: courseMembershipsRes
+                            .map((membership) => membership.courseId)
+                            .filter((courseId) => args.courseWhitelist?.includes(courseId) ?? true)
                     },
                     selectionSet: `
                     {
@@ -31,8 +34,8 @@ const resolvers: Resolvers = {
                     `
                 });
 
-                let mediaRecordWhitelist = mediaRecords.flat().map((mediaRecord) => mediaRecord.id);
-                console.log(mediaRecords);
+                let mediaRecordWhitelist = mediaRecordsRes.flat().map((mediaRecord) => mediaRecord.id);
+                console.log(mediaRecordsRes);
 
                 // run the semantic search
                 return context.DocprocaiService.Query._internal_noauth_semanticSearch({
