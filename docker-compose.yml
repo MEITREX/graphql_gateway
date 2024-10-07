@@ -23,4 +23,4 @@ services:
       SKILLLEVEL_SERVICE_URL: http://app-skilllevel:8001/graphql
       QUIZ_SERVICE_URL: http://app-quiz:9001/graphql
       DOCPROCAI_SERVICE_URL: http://app-docprocai:9901/graphql/
-      DEBUG: 1
+      DEBUG: 0
