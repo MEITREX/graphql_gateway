@@ -46,11 +46,17 @@ const resolvers: Resolvers = {
                     context,
                     info
                 });
+
+                console.log("1");
+
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
                 let items = assessment.items;
                 items = [...items, _args.item];
                 assessment.items = items;
+
+                console.log("2");
+
                 let selectionSet = `{updateAssessment(input: {
                     metadata: {
                         name: "${assessment.metadata.name}",
@@ -66,8 +72,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -83,6 +89,12 @@ const resolvers: Resolvers = {
                     }
                 }
                 }`;
+
+                console.log(selectionSet);
+
+                console.log("3");
+
+                
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
                     root,
                     args: { contentId: _args.assessmentId },
@@ -91,9 +103,18 @@ const resolvers: Resolvers = {
                     info
                 });
 
+
+                console.log("4");
+
+                
                 let questionInput = _args.questionInput;
+                console.log(updatedItems);
                 questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
 
+
+                console.log("5");
+
+                
                 let selectionSetQuiz = `{_internal_noauth_addMultipleChoiceQuestion(input: {
                     itemId: "${questionInput.itemId}",
                     ${questionInput.number != null ? `number:${questionInput.number},` : ''}
@@ -157,6 +178,12 @@ const resolvers: Resolvers = {
                     info
                 });
 
+
+
+                console.log("6");
+
+                
+
                 let returnItem;
                 returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
                 let quizOutput = {
@@ -164,6 +191,9 @@ const resolvers: Resolvers = {
                     questionPool: question._internal_noauth_addMultipleChoiceQuestion.questionPool,
                     item: returnItem
                 }; // Initialize the variable
+
+                console.log("successfully created question");
+
                 return quizOutput;
             },
 
@@ -234,8 +264,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -402,8 +432,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -584,8 +614,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -760,8 +790,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -932,8 +962,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -1101,8 +1131,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -1235,8 +1265,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -1363,8 +1393,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -1488,8 +1518,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -1612,8 +1642,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
@@ -1732,8 +1762,8 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(item => `{
-                            ${item.id != null ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id != null ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
                         }`)}
                     ]
