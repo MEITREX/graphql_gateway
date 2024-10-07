@@ -1,4 +1,7 @@
 extend type Section {
+  """
+  The chapter this section is part of.
+  """
   chapter: Chapter! @resolveTo(
     sourceName: "CourseService",
     sourceTypeName: "Query",
@@ -20,6 +23,12 @@ extend type MediaContent {
     keysArg: "contentIds"
   )
 
+  """
+  Links between segments of the media records that are part of this media content.
+  A link is created if the segments show the same thing, i.e. a video segment and a
+  PDF page are linked if the graphics match (i.e. the PDF is shown on-screen in the
+  video.)
+  """
   segmentLinks: [MediaRecordSegmentLink!]! @resolveTo(
     sourceName: "DocprocaiService",
     sourceTypeName: "Query",
@@ -30,6 +39,11 @@ extend type MediaContent {
     }
   )
 
+  """
+  The progress of processing the media content. In particular when processing is done,
+  links between segments of the content's media records will have been created (the ones
+  which can be retrieved via the MediaContent.segmentLinks field).
+  """
   aiProcessingProgress: AiEntityProcessingProgress! @resolveTo(
     sourceName: "DocprocaiService",
     sourceTypeName: "Query",
