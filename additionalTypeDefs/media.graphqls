@@ -82,4 +82,28 @@ extend type MediaRecord {
       mediaRecordId: "{root.id}"
     }
   )
+
+  """
+  The progress of the AI processing of this media record's content.
+  """
+  aiProcessingProgress: AiEntityProcessingProgress! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getMediaRecordsAiProcessingProgress",
+    keyField: "id",
+    keysArg: "mediaRecordIds"
+  ) 
+
+  """
+  Tags suggested for this media record by the AI system.
+  """
+  suggestedTags: [String!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getMediaRecordSuggestedTags",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      mediaRecord: "{root.id}"
+    }
+  )
 }

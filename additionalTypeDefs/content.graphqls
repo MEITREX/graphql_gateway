@@ -29,6 +29,14 @@ extend type MediaContent {
       contentId: "{root.id}"
     }
   )
+
+  aiProcessingProgress: AiEntityProcessingProgress! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getContentsAiProcessingProgress",
+    keyField: "id",
+    keysArg: "contentIds"
+  ) 
 }
 
 extend type FlashcardSetAssessment {
