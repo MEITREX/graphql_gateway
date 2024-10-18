@@ -1,20 +1,3 @@
-extend type Query {
-  """
-  Performs a semantic search with the specified search term. Returns at most `count` results. If a courseWhitelist is 
-  provided, only results from the specified courses will be returned.
-  """
-  semanticSearch(queryText: String!, count: Int! = 10, courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in media.ts
-
-  """
-  Returns the media record segments that are semantically similar to the media record segment with the specified ID.
-  Returns at most `count` results. If `excludeOwnMediaRecord` is true, segments from the same media record as the
-  specified segment will be excluded from the results.
-  """
-  getSemanticallySimilarMediaRecordSegments(mediaRecordSegmentId: UUID!, 
-                                            count: Int! = 10, 
-                                            excludeOwnMediaRecord: Boolean): [SemanticSearchResult!]! # resolved in media.ts
-}
-
 extend type DocumentRecordSegment {
   """
   The media record this segment is part of.

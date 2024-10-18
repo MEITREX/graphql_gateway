@@ -70,7 +70,6 @@ additionalResolvers:
   - "./additionalResolvers/course.ts"
   - "./additionalResolvers/flashcard.ts"
   - "./additionalResolvers/quiz.ts"
-  - "./additionalResolvers/media.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
