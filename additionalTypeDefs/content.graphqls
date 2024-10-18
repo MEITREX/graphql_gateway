@@ -1,3 +1,21 @@
+extend type Query {
+  """
+  Performs a semantic search with the specified search term. Returns at most `count` results. If a courseWhitelist is 
+  provided, only results from the specified courses will be returned.
+  """
+  semanticSearch(queryText: String!, count: Int! = 10, courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in content.ts
+
+  """
+  Returns semantic search results of entities that are semantically similar to the entity with the specified ID.
+  Returns at most `count` results. If `excludeEntitiesWithSameParent` is true, segments from the same entity as the
+  specified segment will be excluded from the results.
+  """
+  getSemanticallySimilarEntities(entityId: UUID!, 
+                                 count: Int! = 10, 
+                                 excludeEntitiesWithSameParent: Boolean,
+                                 courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in content.ts
+}
+
 extend type Section {
   """
   The chapter this section is part of.
