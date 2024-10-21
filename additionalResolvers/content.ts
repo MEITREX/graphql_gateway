@@ -8,7 +8,7 @@ import {Resolvers} from "../.mesh";
  * to AND are in at least one of the courses in the whitelist are returned
  * @returns List of content ids the user has access to
  */
-async function getContentIdsUserHasAccessTo(context, root, courseWhitelist) {
+async function getContentIdsUserHasAccessTo(context, info, root, courseWhitelist) {
     // get a list of all courses the user has access to
     let courseMembershipsRes = await context.CourseService.Query._internal_noauth_courseMembershipsByUserId({
         root,
@@ -36,7 +36,9 @@ async function getContentIdsUserHasAccessTo(context, root, courseWhitelist) {
         {
             id
         }
-        `
+        `,
+        context,
+        info
     });
 
     let contentWhitelist = mediaRecordsRes.flat().map((mediaRecord) => mediaRecord.id);
@@ -237,7 +239,7 @@ const resolvers: Resolvers = {
     Query: {
         semanticSearch: {
             async resolve(root, args, context, info) {
-                const contentWhitelist = await getContentIdsUserHasAccessTo(context, root, args.courseWhitelist);
+                const contentWhitelist = await getContentIdsUserHasAccessTo(context, info, root, args.courseWhitelist);
 
                 // run the semantic search
                 return context.DocprocaiService.Query._internal_noauth_semanticSearch({
@@ -254,7 +256,7 @@ const resolvers: Resolvers = {
         },
         getSemanticallySimilarEntities: {
             async resolve(root, args, context, info) {
-                let contentWhitelist: string[] = await getContentIdsUserHasAccessTo(context, root, null);
+                let contentWhitelist: string[] = await getContentIdsUserHasAccessTo(context, info, root, null);
     
                 // get semantically similar segments
                 return context.DocprocaiService.Query._internal_noauth_getSemanticallySimilarMediaRecordSegments({
