@@ -16,6 +16,19 @@ extend type Query {
                                  courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in content.ts
 }
 
+extend type AssessmentSemanticSearchResult {
+  """
+  The assessment this search result is referencing.
+  """
+  assessment: Assessment! @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "contentsByIds",
+    keyField: "assessmentId",
+    keysArgs: "ids"
+  )
+}
+
 extend type Section {
   """
   The chapter this section is part of.
