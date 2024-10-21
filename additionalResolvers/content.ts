@@ -262,7 +262,7 @@ const resolvers: Resolvers = {
                 return context.DocprocaiService.Query._internal_noauth_getSemanticallySimilarEntities({
                     root,
                     args: {
-                        segmentId: args.mediaRecordSegmentId,
+                        segmentId: args.segmentId,
                         count: args.count,
                         contentWhitelist: contentWhitelist,
                         excludeEntitiesWithSameParent: args.excludeEntitiesWithSameParent

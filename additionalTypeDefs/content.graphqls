@@ -10,7 +10,7 @@ extend type Query {
   Returns at most `count` results. If `excludeEntitiesWithSameParent` is true, segments from the same entity as the
   specified segment will be excluded from the results.
   """
-  getSemanticallySimilarEntities(entityId: UUID!, 
+  getSemanticallySimilarEntities(segmentId: UUID!, 
                                  count: Int! = 10, 
                                  excludeEntitiesWithSameParent: Boolean,
                                  courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in content.ts
