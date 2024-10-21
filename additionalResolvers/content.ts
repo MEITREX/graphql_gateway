@@ -259,7 +259,7 @@ const resolvers: Resolvers = {
                 let contentWhitelist: string[] = await getContentIdsUserHasAccessTo(context, info, root, null);
     
                 // get semantically similar segments
-                return context.DocprocaiService.Query._internal_noauth_getSemanticallySimilarMediaRecordSegments({
+                return context.DocprocaiService.Query._internal_noauth_getSemanticallySimilarEntities({
                     root,
                     args: {
                         segmentId: args.mediaRecordSegmentId,
