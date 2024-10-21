@@ -25,7 +25,7 @@ extend type AssessmentSemanticSearchResult {
     sourceTypeName: "Query",
     sourceFieldName: "contentsByIds",
     keyField: "assessmentId",
-    keysArgs: "ids"
+    keysArg: "ids"
   )
 }
 
