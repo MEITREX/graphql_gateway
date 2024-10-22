@@ -16,6 +16,19 @@ extend type Query {
                                  courseWhitelist: [UUID!]): [SemanticSearchResult!]! # resolved in content.ts
 }
 
+extend type AssessmentSemanticSearchResult {
+  """
+  The assessment this search result is referencing.
+  """
+  assessment: Assessment! @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "contentsByIds",
+    keyField: "assessmentId",
+    keysArg: "ids"
+  )
+}
+
 extend type Section {
   """
   The chapter this section is part of.
@@ -82,6 +95,18 @@ extend type FlashcardSetAssessment {
     keyField: "id",
     keysArg: "assessmentIds"
   )
+
+  """
+  The progress of processing the assessment. In particular when processing is done,
+  the assessment's task contents will have been indexed for search.
+  """
+  aiProcessingProgress: AiEntityProcessingProgress! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getContentsAiProcessingProgress",
+    keyField: "id",
+    keysArg: "contentIds"
+  ) 
 }
 
 extend type FlashcardSet {
@@ -109,6 +134,18 @@ extend type QuizAssessment {
     keyField: "id",
     keysArg: "assessmentIds"
   )
+
+  """
+  The progress of processing the assessment. In particular when processing is done,
+  the assessment's task contents will have been indexed for search.
+  """
+  aiProcessingProgress: AiEntityProcessingProgress! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getContentsAiProcessingProgress",
+    keyField: "id",
+    keysArg: "contentIds"
+  ) 
 }
 
 extend type Quiz {
