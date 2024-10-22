@@ -89,4 +89,19 @@ extend type MediaRecord {
       mediaRecord: "{root.id}"
     }
   )
+
+  """
+  Gets a short summary/overview of the contents of the media record. Returns a list of strings,
+  where each string can be treated as a paragraph.
+  If no summary is available, returns an empty list.
+  """
+  summary: [String!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getMediaRecordSummary",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      mediaRecordId: "{root.id}"
+    }
+  )
 }
