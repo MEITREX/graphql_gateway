@@ -86,7 +86,7 @@ extend type MediaRecord {
     sourceFieldName: "_internal_noauth_getMediaRecordSuggestedTags",
     requiredSelectionSet: "{ id }",
     sourceArgs: {
-      mediaRecord: "{root.id}"
+      mediaRecordId: "{root.id}"
     }
   )
 
