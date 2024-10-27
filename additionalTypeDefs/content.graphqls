@@ -106,7 +106,20 @@ extend type FlashcardSetAssessment {
     sourceFieldName: "_internal_noauth_getContentsAiProcessingProgress",
     keyField: "id",
     keysArg: "contentIds"
-  ) 
+  )
+
+  """
+  Tags suggested for this assessment by the AI system.
+  """
+  suggestedTags: [String!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getAssessmentSuggestedTags",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      assessmentId: "{root.id}"
+    }
+  )
 }
 
 extend type FlashcardSet {
@@ -145,7 +158,20 @@ extend type QuizAssessment {
     sourceFieldName: "_internal_noauth_getContentsAiProcessingProgress",
     keyField: "id",
     keysArg: "contentIds"
-  ) 
+  )
+
+  """
+  Tags suggested for this assessment by the AI system.
+  """
+  suggestedTags: [String!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getAssessmentSuggestedTags",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      assessmentId: "{root.id}"
+    }
+  )
 }
 
 extend type Quiz {
