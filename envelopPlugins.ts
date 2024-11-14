@@ -19,7 +19,7 @@ type UserType = {
 
 const JWKS = jose.createRemoteJWKSet(
   new URL(
-    process.env.JWKS_URL ?? `http://host.docker.internal:9009/realms/GITS/protocol/openid-connect/certs`
+    process.env.JWKS_URL ?? `http://keycloak:8080/realms/GITS/protocol/openid-connect/certs`
   )
 );
 
