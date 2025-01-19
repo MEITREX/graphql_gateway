@@ -15,11 +15,9 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: { ids: inputArray },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -36,15 +34,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
 
                 console.log("1");
@@ -63,19 +61,26 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -84,6 +89,7 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -94,39 +100,38 @@ const resolvers: Resolvers = {
 
                 console.log("3");
 
-                
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
+                  root,
+                  args: { contentId: _args.assessmentId },
+                  selectionSet: selectionSet,
+                  context,
+                  info,
                 });
-
 
                 console.log("4");
 
-                
                 let questionInput = _args.questionInput;
                 console.log(updatedItems);
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-
+                questionInput.itemId = updatedItems.updateAssessment.items.find(
+                  (item) => !oldItems.some((oldItem) => oldItem.id === item.id)
+                ).id;
 
                 console.log("5");
 
-                
                 let selectionSetQuiz = `{_internal_noauth_addMultipleChoiceQuestion(input: {
                     itemId: "${questionInput.itemId}",
-                    ${questionInput.number != null ? `number:${questionInput.number},` : ''}
+                    ${questionInput.number != null ? `number:${questionInput.number},` : ""}
                     text: ${JSON.stringify(questionInput.text)},
                     answers: [
-                        ${questionInput.answers.map(answer => `{
+                        ${questionInput.answers.map(
+                          (answer) => `{
                             answerText: ${JSON.stringify(answer.answerText)},
                             correct: ${answer.correct},
-                            ${answer.feedback != null ? `feedback:${JSON.stringify(answer.feedback)}` : ''}
-                        }`)}
+                            ${answer.feedback != null ? `feedback:${JSON.stringify(answer.feedback)}` : ""}
+                        }`
+                        )}
                     ],
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
+                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ""}
                 }){
                     assessmentId
                     questionPool {
@@ -166,23 +171,21 @@ const resolvers: Resolvers = {
                             }
                         }
 
-                    } 
-                }}`
+                    }
+                }}`;
                 let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
+                  root,
+                  args: {
+                    assessmentId: _args.assessmentId,
+                  },
+                  selectionSet: selectionSetQuiz,
+                  context,
+                  info,
                 });
-
-
 
                 console.log("6");
 
-                
+
 
                 let returnItem;
                 returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
@@ -210,11 +213,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -231,22 +234,22 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
                 for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
-                    }
+                  if (_args.item.id == items[i].id) {
+                    items[i] = _args.item;
+                  }
                 }
                 assessment.items = items;
                 let selectionSet = `{updateAssessment(input: {
@@ -255,19 +258,26 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -276,6 +286,7 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -283,69 +294,69 @@ const resolvers: Resolvers = {
                 }`;
 
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
+                  root,
+                  args: { contentId: _args.assessmentId },
+                  selectionSet: selectionSet,
+                  context,
+                  info,
                 });
-
 
                 let questionInput = _args.questionInput;
 
-
                 let selectionSetQuiz = `{_internal_noauth_updateMultipleChoiceQuestion(input: {
-    itemId: "${questionInput.itemId}",
-    text: ${JSON.stringify(questionInput.text)},
-    answers: [
-        ${questionInput.answers.map(answer => `{
-            answerText: ${JSON.stringify(answer.answerText)},
-            correct: ${answer.correct},
-            feedback: ${JSON.stringify(answer.feedback)}
-        }`)}
-    ],
-    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-}){
-    assessmentId
-    questionPool {
-        __typename
-        itemId
-        type
-        hint
-        number
-        ... on MultipleChoiceQuestion {
-            text
-            answers {
-            answerText
-            correct
-            feedback
-            }
-        }
-        ... on ClozeQuestion{
-            clozeElements {
-                  __typename
-                  ... on ClozeTextElement {
-                      text
-                  }
-                  ... on ClozeBlankElement {
-                      correctAnswer
-                      feedback
-                  }
-              }
-            allBlanks
-            showBlanksList
-            additionalWrongAnswers
-        }
-        ... on AssociationQuestion{
-            text
-            correctAssociations {
-                left
-                right
-            }
-        }
+                    itemId: "${questionInput.itemId}",
+                    text: ${JSON.stringify(questionInput.text)},
+                    answers: [
+                        ${questionInput.answers.map(
+                          (answer) => `{
+                            answerText: ${JSON.stringify(answer.answerText)},
+                            correct: ${answer.correct},
+                            feedback: ${JSON.stringify(answer.feedback)}
+                        }`
+                        )}
+                    ],
+                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ""}
+                }){
+                    assessmentId
+                    questionPool {
+                        __typename
+                        itemId
+                        type
+                        hint
+                        number
+                        ... on MultipleChoiceQuestion {
+                            text
+                            answers {
+                            answerText
+                            correct
+                            feedback
+                            }
+                        }
+                        ... on ClozeQuestion{
+                            clozeElements {
+                                __typename
+                                ... on ClozeTextElement {
+                                    text
+                                }
+                                ... on ClozeBlankElement {
+                                    correctAnswer
+                                    feedback
+                                }
+                            }
+                            allBlanks
+                            showBlanksList
+                            additionalWrongAnswers
+                        }
+                        ... on AssociationQuestion{
+                            text
+                            correctAssociations {
+                                left
+                                right
+                            }
+                        }
 
-    } 
-}}`
+                    }
+                }}`;
 
                 let question = await context.QuizService.Mutation.mutateQuiz({
                     root,
@@ -381,11 +392,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -402,15 +413,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -423,19 +434,26 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -444,44 +462,46 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
                 }
                 }`;
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
+                  root,
+                  args: { contentId: _args.assessmentId },
+                  selectionSet: selectionSet,
+                  context,
+                  info,
                 });
 
-
                 let questionInput = _args.questionInput;
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
+                questionInput.itemId = updatedItems.updateAssessment.items.find(
+                  (item) => !oldItems.some((oldItem) => oldItem.id === item.id)
+                ).id;
                 let selectionSetQuiz = `{_internal_noauth_addClozeQuestion(input: {
                     itemId: "${questionInput.itemId}",
-                    ${questionInput.number != null ? `number:${questionInput.number},` : ''}
+                    ${questionInput.number != null ? `number:${questionInput.number},` : ""}
                     clozeElements: [
-                        ${questionInput.clozeElements.map(element => {
-                    if (element.type === "TEXT") {
-                        return `{
+                        ${questionInput.clozeElements.map((element) => {
+                          if (element.type === "TEXT") {
+                            return `{
                                     type: TEXT,
-                                    ${element.text != null ? `text:${JSON.stringify(element.text)}` : ''}
-                                }`
-                    } else if (element.type === "BLANK") {
-                        return `{
+                                    ${element.text != null ? `text:${JSON.stringify(element.text)}` : ""}
+                                }`;
+                          } else if (element.type === "BLANK") {
+                            return `{
                                     type: BLANK,
-                                    ${element.correctAnswer != null ? `correctAnswer:"${element.correctAnswer}",` : ''}
-                                    ${element.feedback != null ? `feedback:${JSON.stringify(element.feedback)}` : ''}
-                                }`
-                    }
-                })}
+                                    ${element.correctAnswer != null ? `correctAnswer:"${element.correctAnswer}",` : ""}
+                                    ${element.feedback != null ? `feedback:${JSON.stringify(element.feedback)}` : ""}
+                                }`;
+                          }
+                        })}
                     ],
                     additionalWrongAnswers: ["${questionInput.additionalWrongAnswers.join('", "')}" ],
                     showBlanksList: ${questionInput.showBlanksList},
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
+                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ""}
                 }) {
                     assessmentId
                     questionPool {
@@ -521,7 +541,7 @@ const resolvers: Resolvers = {
                             }
                         }
 
-                    } 
+                    }
                 }}`;
 
                 let question = await context.QuizService.Mutation.mutateQuiz({
@@ -558,11 +578,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -579,23 +599,22 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
+                items.map((item) => (item.id === _args.item.id ? _args.item : item));
                 for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
-                    }
+                  if (_args.item.id == items[i].id) {
+                    items[i] = _args.item;
+                  }
                 }
 
                 assessment.items = items;
@@ -605,19 +624,26 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -626,43 +652,43 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
                 }
                 }`;
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
+                  root,
+                  args: { contentId: _args.assessmentId },
+                  selectionSet: selectionSet,
+                  context,
+                  info,
                 });
-
 
                 let questionInput = _args.questionInput;
 
                 let selectionSetQuiz = `{_internal_noauth_updateClozeQuestion(input: {
                     itemId: "${questionInput.itemId}",
                     clozeElements: [
-                        ${questionInput.clozeElements.map(element => {
-                    if (element.type === "TEXT") {
-                        return `{
+                        ${questionInput.clozeElements.map((element) => {
+                          if (element.type === "TEXT") {
+                            return `{
                                     type: TEXT,
-                                    ${element.text != null ? `text:${JSON.stringify(element.text)}` : ''}
-                                }`
-                    } else if (element.type === "BLANK") {
-                        return `{
+                                    ${element.text != null ? `text:${JSON.stringify(element.text)}` : ""}
+                                }`;
+                          } else if (element.type === "BLANK") {
+                            return `{
                                     type: BLANK,
-                                    ${element.correctAnswer != null ? `correctAnswer:"${element.correctAnswer}",` : ''}
-                                    ${element.feedback != null ? `feedback:${JSON.stringify(element.feedback)}` : ''}
-                                }`
-                    }
-                })}
+                                    ${element.correctAnswer != null ? `correctAnswer:"${element.correctAnswer}",` : ""}
+                                    ${element.feedback != null ? `feedback:${JSON.stringify(element.feedback)}` : ""}
+                                }`;
+                          }
+                        })}
                     ],
                     additionalWrongAnswers: ["${questionInput.additionalWrongAnswers.join('", "')}" ],
                     showBlanksList: ${questionInput.showBlanksList},
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
+                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ""}
                 }) {
                     assessmentId
                     questionPool {
@@ -701,8 +727,7 @@ const resolvers: Resolvers = {
                                 right
                             }
                         }
-
-                    } 
+                    }
                 }}`;
 
                 let question = await context.QuizService.Mutation.mutateQuiz({
@@ -739,11 +764,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -760,15 +785,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -781,19 +806,26 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -802,34 +834,39 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
                 }
                 }`;
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
+                  root,
+                  args: { contentId: _args.assessmentId },
+                  selectionSet: selectionSet,
+                  context,
+                  info,
                 });
 
                 let questionInput = _args.questionInput;
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
+                questionInput.itemId = updatedItems.updateAssessment.items.find(
+                  (item) => !oldItems.some((oldItem) => oldItem.id === item.id)
+                ).id;
 
                 let selectionSetQuiz = `{_internal_noauth_addAssociationQuestion(input: {
                     itemId: "${questionInput.itemId}",
-                    ${questionInput.number != null ? `number:${questionInput.number},` : ''}
+                    ${questionInput.number != null ? `number:${questionInput.number},` : ""}
                     text: ${JSON.stringify(questionInput.text)},
                     correctAssociations: [
-                        ${questionInput.correctAssociations.map(association => `{
+                        ${questionInput.correctAssociations.map(
+                          (association) => `{
                             left: ${JSON.stringify(association.left)},
                             right: ${JSON.stringify(association.right)},
-                            ${association.feedback != null ? `feedback:${JSON.stringify(association.feedback)}` : ''}
-                        }`)}
+                            ${association.feedback != null ? `feedback:${JSON.stringify(association.feedback)}` : ""}
+                        }`
+                        )}
                     ],
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
+                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ""}
                 }) {
                     assessmentId
                     questionPool {
@@ -869,7 +906,7 @@ const resolvers: Resolvers = {
                             }
                         }
 
-                    } 
+                    }
                 }}`;
 
                 let question = await context.QuizService.Mutation.mutateQuiz({
@@ -908,11 +945,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -929,22 +966,22 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
                 for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
-                    }
+                  if (_args.item.id == items[i].id) {
+                    items[i] = _args.item;
+                  }
                 }
                 assessment.items = items;
                 let selectionSet = `{updateAssessment(input: {
@@ -953,19 +990,26 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -974,19 +1018,19 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
                 }
                 }`;
                 let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
+                  root,
+                  args: { contentId: _args.assessmentId },
+                  selectionSet: selectionSet,
+                  context,
+                  info,
                 });
-
 
                 let questionInput = _args.questionInput;
 
@@ -994,13 +1038,15 @@ const resolvers: Resolvers = {
                     itemId: "${questionInput.itemId}",
                     text: ${JSON.stringify(questionInput.text)},
                     correctAssociations: [
-                        ${questionInput.correctAssociations.map(association => `{
+                        ${questionInput.correctAssociations.map(
+                          (association) => `{
                             left: ${JSON.stringify(association.left)},
                             right: ${JSON.stringify(association.right)},
-                            ${association.feedback != null ? `feedback:${JSON.stringify(association.feedback)}` : ''}
-                        }`)}
+                            ${association.feedback != null ? `feedback:${JSON.stringify(association.feedback)}` : ""}
+                        }`
+                        )}
                     ],
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
+                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ""}
                 }) {
                     assessmentId
                     questionPool {
@@ -1040,7 +1086,7 @@ const resolvers: Resolvers = {
                             }
                         }
 
-                    } 
+                    }
                 }}`;
 
 
@@ -1080,11 +1126,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -1101,15 +1147,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -1122,26 +1168,35 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
                     items{
                         id
                         associatedSkills{
+                            id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -1215,11 +1270,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -1236,19 +1291,19 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
+                items.map((item) => (item.id === _args.item.id ? _args.item : item));
                 assessment.items = items;
                 let selectionSet = `{updateAssessment(input: {
                     metadata: {
@@ -1256,26 +1311,35 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
                     items{
                         id
                         associatedSkills{
+                            id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -1342,11 +1406,9 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: { ids: inputArray },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -1363,15 +1425,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -1384,26 +1446,35 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
                     items{
                         id
                         associatedSkills{
+                            id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -1468,11 +1539,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -1489,19 +1560,19 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
+                items.map((item) => (item.id === _args.item.id ? _args.item : item));
                 assessment.items = items;
                 let selectionSet = `{updateAssessment(input: {
                     metadata: {
@@ -1509,26 +1580,35 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
                     items{
                         id
                         associatedSkills{
+                            id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -1590,11 +1670,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: {
+                    ids: inputArray,
+                  },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -1611,15 +1691,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
 
                 let assessment = assessments[0];
@@ -1633,26 +1713,35 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
                     items{
                         id
                         associatedSkills{
+                            id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
@@ -1712,11 +1801,9 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
+                  root,
+                  args: { ids: inputArray },
+                  selectionSet: `
                     {
                         metadata {
                             name
@@ -1733,19 +1820,19 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
-                    context,
-                    info
+                  context,
+                  info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
+                items.map((item) => (item.id === _args.item.id ? _args.item : item));
                 assessment.items = items;
                 let selectionSet = `{updateAssessment(input: {
                     metadata: {
@@ -1753,26 +1840,35 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                        ${assessment.items.map(
+                          (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ""}
+                            associatedSkills:[${item.associatedSkills.map(
+                              (skill) =>
+                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
+                                  skill.skillName
+                                }" skillCategory:"${skill.skillCategory}"}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
                     items{
                         id
                         associatedSkills{
+                            id
                             skillName
+                            skillCategory
                         }
                         associatedBloomLevels
                     }
