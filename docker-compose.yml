@@ -24,3 +24,7 @@ services:
       QUIZ_SERVICE_URL: http://app-quiz:9001/graphql
       DOCPROCAI_SERVICE_URL: http://app-docprocai:9901/graphql/
       DEBUG: 0
+    extra_hosts:
+      # Required for Docker on Linux to resolve host.docker.internal to machine's localhost
+      # Source: https://stackoverflow.com/a/24326540
+      - "host.docker.internal:host-gateway"
