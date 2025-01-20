@@ -27,6 +27,10 @@ services:
       ENABLE_LOGGING: 0 # Set to 1 to enable custom logging
     networks:
       - dapr-network
+    extra_hosts:
+      # Required for Docker on Linux to resolve host.docker.internal to machine's localhost
+      # Source: https://stackoverflow.com/a/24326540
+      - "host.docker.internal:host-gateway"
 networks:
   dapr-network:
     external: true
