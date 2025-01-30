@@ -15,9 +15,9 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: { ids: inputArray },
-                  selectionSet: `
+                    root,
+                    args: { ids: inputArray },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -34,18 +34,18 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
 
-                console.log("1");
+                console.log('1');
 
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -53,7 +53,7 @@ const resolvers: Resolvers = {
                 items = [...items, _args.item];
                 assessment.items = items;
 
-                console.log("2");
+                console.log('2');
 
                 let selectionSet = `{updateAssessment(input: {
                     metadata: {
@@ -70,13 +70,14 @@ const resolvers: Resolvers = {
                     },
                     items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -90,6 +91,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -213,11 +215,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -234,21 +236,21 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
                 for (let i = 0; i < items.length; i++) {
                   if (_args.item.id == items[i].id) {
-                    items[i] = _args.item;
+                      items[i] = _args.item;
                   }
                 }
                 assessment.items = items;
@@ -265,15 +267,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -287,6 +290,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -392,11 +396,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -413,15 +417,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -441,15 +445,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -463,6 +468,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -578,11 +584,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -599,14 +605,14 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
@@ -631,15 +637,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -653,6 +660,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -764,11 +772,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -785,15 +793,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -813,15 +821,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -835,6 +844,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -945,11 +955,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -966,21 +976,21 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
                 for (let i = 0; i < items.length; i++) {
                   if (_args.item.id == items[i].id) {
-                    items[i] = _args.item;
+                      items[i] = _args.item;
                   }
                 }
                 assessment.items = items;
@@ -997,15 +1007,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1019,6 +1030,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -1126,11 +1138,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -1147,15 +1159,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -1175,15 +1187,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1197,6 +1210,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -1270,11 +1284,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -1291,15 +1305,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
@@ -1318,15 +1332,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1340,6 +1355,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -1406,9 +1422,9 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: { ids: inputArray },
-                  selectionSet: `
+                    root,
+                    args: { ids: inputArray },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -1425,15 +1441,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -1453,15 +1469,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1475,6 +1492,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -1539,11 +1557,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -1560,15 +1578,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
@@ -1587,15 +1605,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1609,6 +1628,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -1670,11 +1690,11 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: {
-                    ids: inputArray,
-                  },
-                  selectionSet: `
+                    root,
+                    args: {
+                        ids: inputArray,
+                    },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -1691,15 +1711,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
 
                 let assessment = assessments[0];
@@ -1720,15 +1740,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1742,6 +1763,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -1801,9 +1823,9 @@ const resolvers: Resolvers = {
                 }
 
                 let assessments = await context.ContentService.Query.findContentsByIds({
-                  root,
-                  args: { ids: inputArray },
-                  selectionSet: `
+                    root,
+                    args: { ids: inputArray },
+                    selectionSet: `
                     {
                         metadata {
                             name
@@ -1820,15 +1842,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName,skillCategory}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
 
                     }
                     `,
-                  context,
-                  info,
+                    context,
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
@@ -1847,15 +1869,16 @@ const resolvers: Resolvers = {
                         skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
-                    items:[
+                items:[
                         ${assessment.items.map(
-                          (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ""}
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                              (skill) =>
-                                `{ ${skill.id ? `id:"${skill.id}",` : ""} skillName:"${
-                                  skill.skillName
-                                }" skillCategory:"${skill.skillCategory}"}`
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -1869,6 +1892,7 @@ const resolvers: Resolvers = {
                             id
                             skillName
                             skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }

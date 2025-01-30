@@ -36,22 +36,22 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
                     context,
-                    info
+                    info,
                 });
                 let assessment = assessments[0];
                 let items = assessment.items;
-                items.map(item => item.id == _args.item.id ? _args.item : item);
+                items.map((item) => (item.id == _args.item.id ? _args.item : item));
                 for (let i = 0; i < items.length; i++) {
                     if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
+                        items[i] = _args.item;
                     }
                 }
                 assessment.items = items;
@@ -61,19 +61,27 @@ const resolvers: Resolvers = {
                         suggestedDate: "${assessment.metadata.suggestedDate}",
                         chapterId: "${assessment.metadata.chapterId}",
                         rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                     },
                     assessmentMetadata: {
                         skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                         initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                     },
                     items:[
-                        ${assessment.items.map(item => `{
+                        ${assessment.items.map(
+                            (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
+                            associatedSkills:[${item.associatedSkills.map(
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                     ]
                 }) {
                     id
@@ -82,6 +90,8 @@ const resolvers: Resolvers = {
                         associatedSkills{
                             id
                             skillName
+                            skillCategory
+                            isCustomSkill
                         }
                         associatedBloomLevels
                     }
@@ -92,20 +102,22 @@ const resolvers: Resolvers = {
                     args: { contentId: _args.assessmentId },
                     selectionSet: selectionSet,
                     context,
-                    info
+                    info,
                 });
 
                 let flashcardInput = _args.flashcardInput;
                 let selectionSetFlashcard = `{_internal_noauth_updateFlashcard(input: {
                     itemId: "${flashcardInput.itemId}",
                     sides: [
-                        ${flashcardInput.sides.map(side => `{
+                        ${flashcardInput.sides.map(
+                            (side) => `{
                             label: "${side.label}",
                             isQuestion: ${side.isQuestion},
                             isAnswer: ${side.isAnswer},
-                            text: "${side.text}"}`)}
+                            text: "${side.text}"}`
+                        )}
                     ]
-                }){                    
+                }){
                         itemId
                         sides{
                             label
@@ -169,15 +181,15 @@ const resolvers: Resolvers = {
                                     }
                                     items{
                                         id
-                                        associatedSkills{id,skillName}
+                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
                                         associatedBloomLevels
                                     }
                              }
-                            
+
                     }
                     `,
                     context,
-                    info
+                    info,
                 });
                 let assessment = assessments[0];
                 let oldItems = assessment.items;
@@ -190,19 +202,27 @@ const resolvers: Resolvers = {
                     suggestedDate: "${assessment.metadata.suggestedDate}",
                     chapterId: "${assessment.metadata.chapterId}",
                     rewardPoints: ${assessment.metadata.rewardPoints},
-                    tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
+                    tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
                 },
                 assessmentMetadata: {
                     skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                    skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
+                    skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
                     initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
                 },
                 items:[
-                    ${assessment.items.map(item => `{
-                        ${item.id ? `id:"${item.id}",` : ''}
-                        associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                        associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                    }`)}
+                        ${assessment.items.map(
+                            (item) => `{
+                            ${item.id ? `id:"${item.id}",` : ''}
+                            associatedSkills:[${item.associatedSkills.map(
+                                (skill) =>
+                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                                    skillName:"${skill.skillName}",
+                                    skillCategory: "${skill.skillCategory}"
+                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
+                            )}],
+                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
+                        }`
+                        )}
                 ]
             }) {
                 id
@@ -211,6 +231,8 @@ const resolvers: Resolvers = {
                     associatedSkills{
                         id
                         skillName
+                        skillCategory
+                        isCustomSkill
                     }
                     associatedBloomLevels
                 }
