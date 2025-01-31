@@ -12,6 +12,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      ENABLE_LOGGING: 1
       GATEWAY_HOSTNAME: "0.0.0.0"
       GATEWAY_PORT: "8080"
       COURSE_SERVICE_URL: http://app-course:2001/graphql
@@ -28,3 +29,8 @@ services:
       # Required for Docker on Linux to resolve host.docker.internal to machine's localhost
       # Source: https://stackoverflow.com/a/24326540
       - "host.docker.internal:host-gateway"
+    networks:
+      - dapr-network
+networks:
+  dapr-network:
+    external: true
