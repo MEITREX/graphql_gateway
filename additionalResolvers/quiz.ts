@@ -76,8 +76,8 @@ const resolvers: Resolvers = {
                                 (skill) =>
                                     `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
                             )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
@@ -269,18 +269,18 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
-                        )}
+                )}
                     ]
                 }) {
                     id
@@ -447,15 +447,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -639,15 +639,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -823,15 +823,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1009,15 +1009,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1189,15 +1189,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1334,15 +1334,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1471,15 +1471,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1607,15 +1607,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1742,15 +1742,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
@@ -1871,15 +1871,15 @@ const resolvers: Resolvers = {
                     },
                 items:[
                         ${assessment.items.map(
-                            (item) => `{
+                    (item) => `{
                             ${item.id ? `id:"${item.id}",` : ''}
                             associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
+                        (skill) =>
+                            `{ ${skill.id ? `id:"${skill.id}",` : ''}
                                     skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
+                                    skillCategory: "${skill.skillCategory}",
+                                    isCustomSkill: ${skill.isCustomSkill}}`
+                    )}],
                             associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
                         }`
                         )}
