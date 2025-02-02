@@ -1,297 +1,133 @@
 import { Resolvers } from "../.mesh";
+import { AssessmentItemType, CallbackAfterAssessmentMutation, handleAssessmentMutationThenCallback } from "./lib";
+
+export enum FlashcardTypes {
+    StandardFlashcard = "StandardFlashcard",
+}
 
 const resolvers: Resolvers = {
-
     FlashcardSetMutation: {
-
+        createFlashcard: {
+            /**
+             * @param root { assessmentId: <UUID> } ???
+             * @param _args GraqhQL function parameters defined in flashcard.graphqls file
+             * @param context Browser context (https request headers, etc.)
+             * @param info GraphQL info/ introspection object
+             * @param params logger, currentUser, query, token, service objects, etc.
+             * @returns resolved mutation
+             */
+            async resolve(root, _args, context, info) {
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.FlashcardAssessment,
+                    type: FlashcardTypes.StandardFlashcard,
+                    mutationName: "_internal_noauth_createFlashcard",
+                    callback: handleFlashcardMutationCallback,
+                    root,
+                    _args,
+                    context,
+                    info,
+                });
+            },
+        },
         updateFlashcard: {
             async resolve(root, _args, context, info) {
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.FlashcardAssessment,
+                    type: FlashcardTypes.StandardFlashcard,
+                    mutationName: "_internal_noauth_updateFlashcard",
+                    callback: handleFlashcardMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on FlashcardSetAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
-                                        associatedBloomLevels
-                                    }
-                             }
-
-                    }
-                    `,
+                    _args,
                     context,
                     info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                items.map((item) => (item.id == _args.item.id ? _args.item : item));
-                for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item;
-                    }
-                }
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(
-                            (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
-                                    skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
-                        }`
-                        )}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                            skillCategory
-                            isCustomSkill
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info,
-                });
-
-                let flashcardInput = _args.flashcardInput;
-                let selectionSetFlashcard = `{_internal_noauth_updateFlashcard(input: {
-                    itemId: "${flashcardInput.itemId}",
-                    sides: [
-                        ${flashcardInput.sides.map(
-                            (side) => `{
-                            label: "${side.label}",
-                            isQuestion: ${side.isQuestion},
-                            isAnswer: ${side.isAnswer},
-                            text: "${side.text}"}`
-                        )}
-                    ]
-                }){
-                        itemId
-                        sides{
-                            label
-                            isQuestion
-                            isAnswer
-                            text
-                        }
-                    }
-                }`;
-                let flashcard = await context.FlashcardService.Mutation.mutateFlashcardSet({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    // we need to define a selection set manually here, otherwise it thinks we don't need any data
-                    // from this mutation and it won't actually be executed
-                    selectionSet: selectionSetFlashcard,
-                    context,
-                    info
-                });
-                let returnItem = updatedItems.updateAssessment.items.find(item => item.id == _args.item.id);
-                let flashcardOutput = {
-                    flashcard: flashcard._internal_noauth_updateFlashcard,
-                    item: returnItem
-                }; // Initialize the variable
-
-                return flashcardOutput;
             },
-
         },
-        createFlashcard: {
-            async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
+    },
+};
 
-                let assessments = await context.ContentService.Query.findContentsByIds({
-                    root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on FlashcardSetAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName,skillCategory,isCustomSkill}
-                                        associatedBloomLevels
-                                    }
-                             }
+const handleFlashcardMutationCallback: CallbackAfterAssessmentMutation<
+    AssessmentItemType.FlashcardAssessment
+> = async ({ logger, type, root, _args, context, info, isUpdate, mutationName, returnItem, contentUpdated }) => {
+    logger.log(4, true, `mutating flashcard item with id "${returnItem.id}"...`);
+    try {
+        const flashcardMutated = await mutateFlashcardInFlashcardService(
+            logger,
+            type,
+            root,
+            context,
+            info,
+            mutationName,
+            contentUpdated,
+            _args.assessmentId
+        );
+        logger.log(4, false, `flashcard content ${isUpdate ? "updated" : "added"}:`, flashcardMutated[mutationName]);
 
-                    }
-                    `,
-                    context,
-                    info,
-                });
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                metadata: {
-                    name: "${assessment.metadata.name}",
-                    suggestedDate: "${assessment.metadata.suggestedDate}",
-                    chapterId: "${assessment.metadata.chapterId}",
-                    rewardPoints: ${assessment.metadata.rewardPoints},
-                    tagNames: [${assessment.metadata.tagNames.map((tag) => `"${tag}"`)}]
-                },
-                assessmentMetadata: {
-                    skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                    skillTypes: [${assessment.assessmentMetadata.skillTypes.map((skillType) => `${skillType}`)}],
-                    initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                },
-                items:[
-                        ${assessment.items.map(
-                            (item) => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(
-                                (skill) =>
-                                    `{ ${skill.id ? `id:"${skill.id}",` : ''}
-                                    skillName:"${skill.skillName}",
-                                    skillCategory: "${skill.skillCategory}"
-                                    ${skill.isCustomSkill ? `, isCustomSkill: ${skill.isCustomSkill}` : ''}}`
-                            )}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map((level) => `${level}`)}]
-                        }`
-                        )}
-                ]
-            }) {
-                id
-                items{
-                    id
-                    associatedSkills{
-                        id
-                        skillName
-                        skillCategory
-                        isCustomSkill
-                    }
-                    associatedBloomLevels
-                }
-            }
-            }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
+        logger.log(5, true, "finished");
+        return {
+            flashcard: flashcardMutated[mutationName],
+            item: returnItem,
+        };
+    } catch (error) {
+        console.error("Error mutating flashcard:", error);
+    }
+};
 
-                let flashcardInput = _args.flashcardInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        flashcardInput.itemId = item.id;
-                        break;
-                    }
-                }
-                flashcardInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-                let selectionSetFlashcard = `{_internal_noauth_createFlashcard(input: {
-                itemId: "${flashcardInput.itemId}",
+const mutateFlashcardInFlashcardService = async (
+    logger,
+    type: FlashcardTypes,
+    root,
+    context,
+    info,
+    mutationName,
+    flashcardInput,
+    assessmentId
+) => {
+    let flashcardTypeDependentFields;
+    switch (type) {
+        case FlashcardTypes.StandardFlashcard: {
+            flashcardTypeDependentFields = /* GraphQL */ `
                 sides: [
-                    ${flashcardInput.sides.map(side => `{
+                    ${flashcardInput.sides.map(
+                        (side) => `{
                         label: "${side.label}",
                         isQuestion: ${side.isQuestion},
                         isAnswer: ${side.isAnswer},
-                        text: "${side.text}"}`)}
-                ]
-            }){
-                    itemId
-                    sides{
-                        label
-                        isQuestion
-                        isAnswer
-                        text
-                    }
-                }
-            }`;
-                let flashcard = await context.FlashcardService.Mutation.mutateFlashcardSet({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetFlashcard,
-                    context,
-                    info
-                });
-                let returnItem;
-                returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
-                let flashcardOutput = {
-                    flashcard: flashcard._internal_noauth_createFlashcard,
-                    item: returnItem
-                }; // Initialize the variable
-                return flashcardOutput;
-            },
-
-        },
+                        text: "${side.text}"
+                    }`
+                    )}
+                ],
+            `;
+            break;
+        }
+        default:
+            throw new Error(`Unknown internal flashcard type provided: ${type}`);
     }
+
+    const mutationsSelectionSet = /* GraphQL */ `${mutationName}(input: {
+        itemId: "${flashcardInput.itemId}",
+        ${flashcardTypeDependentFields}
+    })`;
+    logger.log(4, false, "mutation content", mutationsSelectionSet);
+
+    return await context.FlashcardService.Mutation.mutateFlashcardSet({
+        root,
+        args: { assessmentId: assessmentId },
+        selectionSet: /* GraphQL */ `{
+            ${mutationsSelectionSet} {
+                itemId
+                sides {
+                    label
+                    isQuestion
+                    isAnswer
+                    text
+                }
+            }
+        }`,
+        context,
+        info,
+    });
 };
+
 export default resolvers;

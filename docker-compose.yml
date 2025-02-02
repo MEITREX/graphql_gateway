@@ -24,6 +24,7 @@ services:
       QUIZ_SERVICE_URL: http://app-quiz:9001/graphql
       DOCPROCAI_SERVICE_URL: http://app-docprocai:9901/graphql/
       DEBUG: 0
+      ENABLE_LOGGING: 0 # Set to 1 to enable custom logging
     networks:
       - dapr-network
 networks:
