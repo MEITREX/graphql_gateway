@@ -25,7 +25,7 @@ sources:
       graphql:
         endpoint: "{env.FLASHCARD_SERVICE_URL}"
         operationHeaders:
-          CurrentUser: "{context.currentUserJson}"    
+          CurrentUser: "{context.currentUserJson}"
   - name: RewardService
     handler:
       graphql:
@@ -75,5 +75,8 @@ transforms:
   - filterSchema:
       mode: bare
       filters:
-        - Mutation.!_internal* # filter out all mutations that start with _internal
-        - Query.!_internal* # filter out all queries that start with _internal
+        # filter out all mutations that start with _internal since those are supposed to be callable in ./additionalREsolvers/* only
+        - Mutation.!_internal*
+        - Query.!_internal*
+        - FlashcardSetMutation.!_internal*
+        - QuizMutation.!_internal*
