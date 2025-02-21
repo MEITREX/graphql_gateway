@@ -67,7 +67,6 @@ const handleFlashcardMutationCallback: CallbackAfterAssessmentMutation<
         logger.log(5, true, "finished");
         return {
             flashcard: flashcardMutated[mutationName],
-            item: returnItem,
         };
     } catch (error) {
         console.error("Error mutating flashcard:", error);

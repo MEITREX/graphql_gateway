@@ -234,7 +234,6 @@ const handleQuestionMutationCallback: CallbackAfterAssessmentMutation<Assessment
         return {
             assessmentId: questionMutated[mutationName].assessmentId,
             questionPool: questionMutated[mutationName].questionPool,
-            item: returnItem,
         };
     } catch (error) {
         console.error("Error mutating question:", error);
