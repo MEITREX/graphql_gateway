@@ -21,10 +21,10 @@ services:
       FLASHCARD_SERVICE_URL: http://app-flashcard:6001/graphql
       REWARD_SERVICE_URL: http://app-reward:7001/graphql
       SKILLLEVEL_SERVICE_URL: http://app-skilllevel:8001/graphql
-      QUIZ_SERVICE_URL: http://app-quiz:9001/graphql
+      QUIZ_SERVICE_URL: http://host.docker.internal:9001/graphql
       DOCPROCAI_SERVICE_URL: http://app-docprocai:9901/graphql/
       DEBUG: 0
-      ENABLE_LOGGING: 0 # Set to 1 to enable custom logging
+      ENABLE_LOGGING: 1 # Set to 1 to enable custom logging
     networks:
       - dapr-network
     extra_hosts:

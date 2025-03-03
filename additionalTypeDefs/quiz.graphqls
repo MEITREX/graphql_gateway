@@ -4,9 +4,9 @@ extend type QuizMutation {
     Add a multiple choice question to the quiz questions, at the end of the list.
     """
     addMultipleChoiceQuestion(
-        questionInput: CreateMultipleChoiceQuestionInput!
+        questionInput: CreateMultipleChoiceQuestionInputWithoutItem!
         assessmentId: UUID!
-        item: ItemInput!
+        item: CreateItemInput!
     ): QuizOutput!
     """
     Update a multiple choice question in the quiz questions.
@@ -19,7 +19,11 @@ extend type QuizMutation {
     """
     Add a cloze question to the quiz questions, at the end of the list.
     """
-    addClozeQuestion(questionInput: CreateClozeQuestionInput!, assessmentId: UUID!, item: ItemInput!): QuizOutput!
+    addClozeQuestion(
+        questionInput: CreateClozeQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
     """
     Update a cloze question in the quiz questions.
     """
@@ -28,9 +32,9 @@ extend type QuizMutation {
     Add an association question to the quiz questions, at the end of the list.
     """
     addAssociationQuestion(
-        questionInput: CreateAssociationQuestionInput!
+        questionInput: CreateAssociationQuestionInputWithoutItem!
         assessmentId: UUID!
-        item: ItemInput!
+        item: CreateItemInput!
     ): QuizOutput!
     """
     Update an association question in the quiz questions.
@@ -44,9 +48,9 @@ extend type QuizMutation {
     Add an free text question with exact answer to the quiz questions, at the end of the list.
     """
     addExactAnswerQuestion(
-        questionInput: CreateExactAnswerQuestionInput!
+        questionInput: CreateExactAnswerQuestionInputWithoutItem!
         assessmentId: UUID!
-        item: ItemInput!
+        item: CreateItemInput!
     ): QuizOutput!
     """
     Update an free text question with exact answer in the quiz questions.
@@ -59,7 +63,11 @@ extend type QuizMutation {
     """
     Add a numeric question to the quiz questions, at the end of the list.
     """
-    addNumericQuestion(questionInput: CreateNumericQuestionInput!, assessmentId: UUID!, item: ItemInput!): QuizOutput!
+    addNumericQuestion(
+        questionInput: CreateNumericQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
     """
     Update a numeric question in the quiz questions.
     """
@@ -72,9 +80,9 @@ extend type QuizMutation {
     Add a self assessment question to the quiz questions, at the end of the list.
     """
     addSelfAssessmentQuestion(
-        questionInput: CreateSelfAssessmentQuestionInput!
+        questionInput: CreateSelfAssessmentQuestionInputWithoutItem!
         assessmentId: UUID!
-        item: ItemInput!
+        item: CreateItemInput!
     ): QuizOutput!
     """
     Update a self assessment question in the quiz questions.
@@ -147,4 +155,51 @@ extend type NumericQuestion {
             keyField: "itemId"
             keysArg: "ids"
         )
+}
+
+input CreateMultipleChoiceQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    answers: [MultipleChoiceAnswerInput!]!
+    hint: JSON
+}
+
+input CreateAssociationQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    correctAssociations: [CreateAssociationInput!]!
+    hint: JSON
+}
+
+input CreateClozeQuestionInputWithoutItem {
+    number: Int
+    clozeElements: [CreateClozeElementInput!]!
+    additionalWrongAnswers: [String!]! = []
+    showBlanksList: Boolean! = true
+    hint: JSON
+}
+
+input CreateExactAnswerQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    caseSensitive: Boolean! = false
+    correctAnswers: [String!]!
+    feedback: JSON
+    hint: JSON
+}
+
+input CreateNumericQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    hint: JSON
+    correctAnswer: Float!
+    tolerance: Float!
+    feedback: JSON
+}
+
+input CreateSelfAssessmentQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    solutionSuggestion: JSON!
+    hint: JSON
 }
