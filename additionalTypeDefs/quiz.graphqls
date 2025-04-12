@@ -97,6 +97,7 @@ extend type QuizMutation {
 type QuizOutput {
     assessmentId: UUID!
     questionPool: [Question!]!
+    modifiedQuestion: Question!
 }
 
 # Sadly, it's not possible to extend the Question interface which every question type implements.
