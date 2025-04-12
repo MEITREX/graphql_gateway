@@ -1,1823 +1,410 @@
 import { Resolvers } from "../.mesh";
+import { AssessmentItemType, CallbackAfterAssessmentMutation, handleAssessmentMutationThenCallback } from "./lib";
+
+export enum QuestionTypes {
+    MultipleChoice = "MultipleChoiceQuestion",
+    Cloze = "ClozeQuestion",
+    Association = "AssociationQuestion",
+    ExactAnswer = "ExactAnswerQuestion",
+    Numeric = "NumericQuestion",
+    SelfAssessment = "SelfAssessmentQuestion",
+}
 
 const resolvers: Resolvers = {
     QuizMutation: {
-
         addMultipleChoiceQuestion: {
+            /**
+             * @param root { assessmentId: <UUID> } ???
+             * @param _args GraqhQL function parameters defined in flashcard.graphqls file
+             * @param context Browser context (https request headers, etc.)
+             * @param info GraphQL info/ introspection object
+             * @param params logger, currentUser, query, token, service objects, etc.
+             * @returns resolved mutation
+             */
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.MultipleChoice,
+                    mutationName: "_internal_noauth_addMultipleChoiceQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
                 });
-
-                console.log("1");
-
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-
-                console.log("2");
-
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-
-                console.log(selectionSet);
-
-                console.log("3");
-
-                
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                console.log("4");
-
-                
-                let questionInput = _args.questionInput;
-                console.log(updatedItems);
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-
-
-                console.log("5");
-
-                
-                let selectionSetQuiz = `{_internal_noauth_addMultipleChoiceQuestion(input: {
-                    itemId: "${questionInput.itemId}",
-                    ${questionInput.number != null ? `number:${questionInput.number},` : ''}
-                    text: ${JSON.stringify(questionInput.text)},
-                    answers: [
-                        ${questionInput.answers.map(answer => `{
-                            answerText: ${JSON.stringify(answer.answerText)},
-                            correct: ${answer.correct},
-                            ${answer.feedback != null ? `feedback:${JSON.stringify(answer.feedback)}` : ''}
-                        }`)}
-                    ],
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-                }){
-                    assessmentId
-                    questionPool {
-                        __typename
-                        itemId
-                        type
-                        hint
-                        number
-                        ... on MultipleChoiceQuestion {
-                            text
-                            answers {
-                            answerText
-                            correct
-                            feedback
-                            }
-                        }
-                        ... on ClozeQuestion{
-                            clozeElements {
-                                  __typename
-                                  ... on ClozeTextElement {
-                                      text
-                                  }
-                                  ... on ClozeBlankElement {
-                                      correctAnswer
-                                      feedback
-                                  }
-                              }
-                            allBlanks
-                            showBlanksList
-                            additionalWrongAnswers
-                        }
-                        ... on AssociationQuestion{
-                            text
-                            correctAssociations {
-                                left
-                                right
-                            }
-                        }
-
-                    } 
-                }}`
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-
-
-                console.log("6");
-
-                
-
-                let returnItem;
-                returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
-                let quizOutput = {
-                    assessmentId: question._internal_noauth_addMultipleChoiceQuestion.assessmentId,
-                    questionPool: question._internal_noauth_addMultipleChoiceQuestion.questionPool,
-                    item: returnItem
-                }; // Initialize the variable
-
-                console.log("successfully created question");
-
-                return quizOutput;
             },
-
         },
         updateMultipleChoiceQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.MultipleChoice,
+                    mutationName: "_internal_noauth_updateMultipleChoiceQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
-                    }
-                }
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-
-
-                let selectionSetQuiz = `{_internal_noauth_updateMultipleChoiceQuestion(input: {
-    itemId: "${questionInput.itemId}",
-    text: ${JSON.stringify(questionInput.text)},
-    answers: [
-        ${questionInput.answers.map(answer => `{
-            answerText: ${JSON.stringify(answer.answerText)},
-            correct: ${answer.correct},
-            feedback: ${JSON.stringify(answer.feedback)}
-        }`)}
-    ],
-    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-}){
-    assessmentId
-    questionPool {
-        __typename
-        itemId
-        type
-        hint
-        number
-        ... on MultipleChoiceQuestion {
-            text
-            answers {
-            answerText
-            correct
-            feedback
-            }
-        }
-        ... on ClozeQuestion{
-            clozeElements {
-                  __typename
-                  ... on ClozeTextElement {
-                      text
-                  }
-                  ... on ClozeBlankElement {
-                      correctAnswer
-                      feedback
-                  }
-              }
-            allBlanks
-            showBlanksList
-            additionalWrongAnswers
-        }
-        ... on AssociationQuestion{
-            text
-            correctAssociations {
-                left
-                right
-            }
-        }
-
-    } 
-}}`
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-                let returnItem = updatedItems.updateAssessment.items.find(item => item.id == _args.item.id);
-
-                let quizOutput = {
-                    assessmentId: question._internal_noauth_updateMultipleChoiceQuestion.assessmentId,
-                    questionPool: question._internal_noauth_updateMultipleChoiceQuestion.questionPool,
-                    item: returnItem
-                }; // Initialize the variable
-                return quizOutput;
             },
-
         },
         addClozeQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.Cloze,
+                    mutationName: "_internal_noauth_addClozeQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
                 });
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-                let selectionSetQuiz = `{_internal_noauth_addClozeQuestion(input: {
-                    itemId: "${questionInput.itemId}",
-                    ${questionInput.number != null ? `number:${questionInput.number},` : ''}
-                    clozeElements: [
-                        ${questionInput.clozeElements.map(element => {
-                    if (element.type === "TEXT") {
-                        return `{
-                                    type: TEXT,
-                                    ${element.text != null ? `text:${JSON.stringify(element.text)}` : ''}
-                                }`
-                    } else if (element.type === "BLANK") {
-                        return `{
-                                    type: BLANK,
-                                    ${element.correctAnswer != null ? `correctAnswer:"${element.correctAnswer}",` : ''}
-                                    ${element.feedback != null ? `feedback:${JSON.stringify(element.feedback)}` : ''}
-                                }`
-                    }
-                })}
-                    ],
-                    additionalWrongAnswers: ["${questionInput.additionalWrongAnswers.join('", "')}" ],
-                    showBlanksList: ${questionInput.showBlanksList},
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-                }) {
-                    assessmentId
-                    questionPool {
-                        __typename
-                        itemId
-                        type
-                        hint
-                        number
-                        ... on MultipleChoiceQuestion {
-                            text
-                            answers {
-                            answerText
-                            correct
-                            feedback
-                            }
-                        }
-                        ... on ClozeQuestion{
-                            clozeElements {
-                                  __typename
-                                  ... on ClozeTextElement {
-                                      text
-                                  }
-                                  ... on ClozeBlankElement {
-                                      correctAnswer
-                                      feedback
-                                  }
-                              }
-                            allBlanks
-                            showBlanksList
-                            additionalWrongAnswers
-                        }
-                        ... on AssociationQuestion{
-                            text
-                            correctAssociations {
-                                left
-                                right
-                            }
-                        }
-
-                    } 
-                }}`;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-                let returnItem;
-                returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
-                let quizOutput = {
-                    assessmentId: question._internal_noauth_addClozeQuestion.assessmentId,
-                    questionPool: question._internal_noauth_addClozeQuestion.questionPool,
-                    item: returnItem
-                }; // Initialize the variable
-
-                return quizOutput;
-
             },
-
         },
         updateClozeQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.Cloze,
+                    mutationName: "_internal_noauth_updateClozeQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
-                for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
-                    }
-                }
-
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-
-                let selectionSetQuiz = `{_internal_noauth_updateClozeQuestion(input: {
-                    itemId: "${questionInput.itemId}",
-                    clozeElements: [
-                        ${questionInput.clozeElements.map(element => {
-                    if (element.type === "TEXT") {
-                        return `{
-                                    type: TEXT,
-                                    ${element.text != null ? `text:${JSON.stringify(element.text)}` : ''}
-                                }`
-                    } else if (element.type === "BLANK") {
-                        return `{
-                                    type: BLANK,
-                                    ${element.correctAnswer != null ? `correctAnswer:"${element.correctAnswer}",` : ''}
-                                    ${element.feedback != null ? `feedback:${JSON.stringify(element.feedback)}` : ''}
-                                }`
-                    }
-                })}
-                    ],
-                    additionalWrongAnswers: ["${questionInput.additionalWrongAnswers.join('", "')}" ],
-                    showBlanksList: ${questionInput.showBlanksList},
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-                }) {
-                    assessmentId
-                    questionPool {
-                        __typename
-                        itemId
-                        type
-                        hint
-                        number
-                        ... on MultipleChoiceQuestion {
-                            text
-                            answers {
-                            answerText
-                            correct
-                            feedback
-                            }
-                        }
-                        ... on ClozeQuestion{
-                            clozeElements {
-                                  __typename
-                                  ... on ClozeTextElement {
-                                      text
-                                  }
-                                  ... on ClozeBlankElement {
-                                      correctAnswer
-                                      feedback
-                                  }
-                              }
-                            allBlanks
-                            showBlanksList
-                            additionalWrongAnswers
-                        }
-                        ... on AssociationQuestion{
-                            text
-                            correctAssociations {
-                                left
-                                right
-                            }
-                        }
-
-                    } 
-                }}`;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-                let returnItem = updatedItems.updateAssessment.items.find(item => item.id == _args.item.id);
-
-                let quizOutput = {
-                    assessmentId: question._internal_noauth_updateClozeQuestion.assessmentId,
-                    questionPool: question._internal_noauth_updateClozeQuestion.questionPool,
-                    item: returnItem
-                }; // Initialize the variable
-                return quizOutput;
-
             },
-
         },
         addAssociationQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.Association,
+                    mutationName: "_internal_noauth_addAssociationQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
                 });
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-                let questionInput = _args.questionInput;
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-
-                let selectionSetQuiz = `{_internal_noauth_addAssociationQuestion(input: {
-                    itemId: "${questionInput.itemId}",
-                    ${questionInput.number != null ? `number:${questionInput.number},` : ''}
-                    text: ${JSON.stringify(questionInput.text)},
-                    correctAssociations: [
-                        ${questionInput.correctAssociations.map(association => `{
-                            left: ${JSON.stringify(association.left)},
-                            right: ${JSON.stringify(association.right)},
-                            ${association.feedback != null ? `feedback:${JSON.stringify(association.feedback)}` : ''}
-                        }`)}
-                    ],
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-                }) {
-                    assessmentId
-                    questionPool {
-                        __typename
-                        itemId
-                        type
-                        hint
-                        number
-                        ... on MultipleChoiceQuestion {
-                            text
-                            answers {
-                            answerText
-                            correct
-                            feedback
-                            }
-                        }
-                        ... on ClozeQuestion{
-                            clozeElements {
-                                  __typename
-                                  ... on ClozeTextElement {
-                                      text
-                                  }
-                                  ... on ClozeBlankElement {
-                                      correctAnswer
-                                      feedback
-                                  }
-                              }
-                            allBlanks
-                            showBlanksList
-                            additionalWrongAnswers
-                        }
-                        ... on AssociationQuestion{
-                            text
-                            correctAssociations {
-                                left
-                                right
-                            }
-                        }
-
-                    } 
-                }}`;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-                let returnItem;
-                returnItem = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id));
-                let quizOutput = {
-                    assessmentId: question._internal_noauth_addAssociationQuestion.assessmentId,
-                    questionPool: question._internal_noauth_addAssociationQuestion.questionPool,
-                    item: returnItem
-                }; // Initialize the variable
-
-                return quizOutput;
-
-
             },
-
         },
         updateAssociationQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.Association,
+                    mutationName: "_internal_noauth_updateAssociationQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                for (let i = 0; i < items.length; i++) {
-                    if (_args.item.id == items[i].id) {
-                        items[i] = _args.item
-                    }
-                }
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            id
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-
-                let selectionSetQuiz = `{_internal_noauth_updateAssociationQuestion(input: {
-                    itemId: "${questionInput.itemId}",
-                    text: ${JSON.stringify(questionInput.text)},
-                    correctAssociations: [
-                        ${questionInput.correctAssociations.map(association => `{
-                            left: ${JSON.stringify(association.left)},
-                            right: ${JSON.stringify(association.right)},
-                            ${association.feedback != null ? `feedback:${JSON.stringify(association.feedback)}` : ''}
-                        }`)}
-                    ],
-                    ${questionInput.hint != null ? `hint:${JSON.stringify(questionInput.hint)}` : ''}
-                }) {
-                    assessmentId
-                    questionPool {
-                        __typename
-                        itemId
-                        type
-                        hint
-                        number
-                        ... on MultipleChoiceQuestion {
-                            text
-                            answers {
-                            answerText
-                            correct
-                            feedback
-                            }
-                        }
-                        ... on ClozeQuestion{
-                            clozeElements {
-                                  __typename
-                                  ... on ClozeTextElement {
-                                      text
-                                  }
-                                  ... on ClozeBlankElement {
-                                      correctAnswer
-                                      feedback
-                                  }
-                              }
-                            allBlanks
-                            showBlanksList
-                            additionalWrongAnswers
-                        }
-                        ... on AssociationQuestion{
-                            text
-                            correctAssociations {
-                                left
-                                right
-                            }
-                        }
-
-                    } 
-                }}`;
-
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId: _args.assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-                let returnItem = updatedItems.updateAssessment.items.find(item => item.id == _args.item.id);
-
-                let quizOutput = {
-                    assessmentId: question._internal_noauth_updateAssociationQuestion.assessmentId,
-                    questionPool: question._internal_noauth_updateAssociationQuestion.questionPool,
-                    item: returnItem
-                }; // Initialize the variable
-                return quizOutput;
-
-
             },
-
         },
         addExactAnswerQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.ExactAnswer,
+                    mutationName: "_internal_noauth_addExactAnswerQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
                 });
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-                let questionInput = _args.questionInput;
-                for (let item of updatedItems.updateAssessment.items) {
-                    if (!oldItems.some(oldItem => oldItem.id === item.id)) {
-                        questionInput.itemId = item.id;
-                        break;
-                    }
-                }
-
-
-                let selectionSetQuiz = `{
-                    {
-                        _internal_noauth_addExactAnswerQuestion(input: {
-                          itemId: "${questionInput.itemId}",
-                          number: ${questionInput.number},
-                          text: "${questionInput.text}",
-                          caseSensitive: ${questionInput.caseSensitive},
-                          correctAnswers: [
-                            ${questionInput.correctAnswers.map(answer => `"${answer}"`)}
-                          ],
-                          feedback: "${questionInput.feedback}",
-                          hint: "${questionInput.hint}"
-                        }) {
-                          itemId
-                          number
-                          text
-                          caseSensitive
-                          correctAnswers
-                          feedback
-                          hint
-                        }
-                      }`;
-                let assessmentId = "assessmentId:" + _args.assessmentId;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-
-                return question._internal_noauth_addExactAnswerQuestion;
             },
-
         },
         updateExactAnswerQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.ExactAnswer,
+                    mutationName: "_internal_noauth_updateExactAnswerQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-
-                let selectionSetQuiz = `{
-                    _internal_noauth_updateExactAnswerQuestion(input: {
-                      itemId: "${questionInput.itemId}",
-                      text: "${questionInput.text}",
-                      caseSensitive: ${questionInput.caseSensitive},
-                      correctAnswers: [
-                        ${questionInput.correctAnswers.map(answer => `"${answer}"`)}
-                      ],
-                      feedback: "${questionInput.feedback}",
-                      hint: "${questionInput.hint}"
-                    }) {
-                      itemId
-                      text
-                      caseSensitive
-                      correctAnswers
-                      feedback
-                      hint
-                    }
-                  }`;
-                let assessmentId = "assessmentId:" + _args.assessmentId;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-
-                return question._internal_noauth_updateExactAnswerQuestion;
-
             },
-
         },
         addNumericQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.Numeric,
+                    mutationName: "_internal_noauth_addNumericQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
                 });
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-                let questionInput = _args.questionInput;
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-                let selectionSetQuiz = `{
-                    _internal_noauth_addNumericQuestion(input: {
-                      itemId: "${questionInput.itemId}",
-                      number: ${questionInput.number},
-                      text: "${questionInput.text}",
-                      correctAnswer: ${questionInput.correctAnswer},
-                      tolerance: ${questionInput.tolerance},
-                      feedback: "${questionInput.feedback}",
-                      hint: "${questionInput.hint}"
-                    }) {
-                      itemId
-                      number
-                      text
-                      correctAnswer
-                      tolerance
-                      feedback
-                      hint
-                    }
-                  }`;
-                let assessmentId = "assessmentId:" + _args.assessmentId;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-
-                return question;
-
             },
-
         },
         updateNumericQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.Numeric,
+                    mutationName: "_internal_noauth_updateNumericQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-                let selectionSetQuiz = `{
-                    _internal_noauth_updateNumericQuestion(input: {
-                      itemId: "${questionInput.itemId}",
-                      text: "${questionInput.text}",
-                      correctAnswer: ${questionInput.correctAnswer},
-                      tolerance: ${questionInput.tolerance},
-                      feedback: "${questionInput.feedback}",
-                      hint: "${questionInput.hint}"
-                    }) {
-                      itemId
-                      text
-                      correctAnswer
-                      tolerance
-                      feedback
-                      hint
-                    }
-                  }`;
-                let assessmentId = "assessmentId:" + _args.assessmentId;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-                return question
             },
-
         },
         addSelfAssessmentQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.SelfAssessment,
+                    mutationName: "_internal_noauth_addSelfAssessmentQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
                 });
-
-                let assessment = assessments[0];
-                let oldItems = assessment.items;
-                let items = assessment.items;
-                items = [...items, _args.item];
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-                let questionInput = _args.questionInput;
-                questionInput.itemId = updatedItems.updateAssessment.items.find(item => !oldItems.some(oldItem => oldItem.id === item.id)).id;
-                let selectionSetQuiz = `{
-                    _internal_noauth_addSelfAssessmentQuestion(input: {
-                      itemId: "${questionInput.itemId}",
-                      number: ${questionInput.number},
-                      text: "${questionInput.text}",
-                      solutionSuggestion: "${questionInput.solutionSuggestion}",
-                      hint: "${questionInput.hint}"
-                    }) {
-                      itemId
-                      number
-                      text
-                      solutionSuggestion
-                      hint
-                    }
-                  }`;
-                let assessmentId = "assessmentId:" + _args.assessmentId;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-                ;
-
-                return question;
             },
-
         },
         updateSelfAssessmentQuestion: {
             async resolve(root, _args, context, info) {
-                // find out in which course the chapter this assessment should be created in is
-                let inputArray = [_args.assessmentId];
-                // check that the user is an admin in the course the assessment should be created in
-                if (!context.currentUser.courseMemberships.some((membership) => {
-                    return membership.role === "ADMINISTRATOR";
-                })) {
-                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
-                }
-
-                let assessments = await context.ContentService.Query.findContentsByIds({
+                return handleAssessmentMutationThenCallback({
+                    assessmentType: AssessmentItemType.QuizAssessment,
+                    type: QuestionTypes.SelfAssessment,
+                    mutationName: "_internal_noauth_updateSelfAssessmentQuestion",
+                    callback: handleQuestionMutationCallback,
                     root,
-                    args: {
-                        ids: inputArray,
-                    },
-                    selectionSet: `
-                    {
-                        metadata {
-                            name
-                            rewardPoints
-                            suggestedDate
-                            tagNames
-                            chapterId
-                       }
-                             ... on QuizAssessment {
-                                    assessmentMetadata {
-                                          initialLearningInterval
-                                          skillPoints
-                                          skillTypes
-                                    }
-                                    items{
-                                        id
-                                        associatedSkills{id,skillName}
-                                        associatedBloomLevels
-                                    }
-                             }
-                            
-                    }
-                    `,
+                    _args,
                     context,
-                    info
+                    info,
+                    isUpdate: true,
                 });
-                let assessment = assessments[0];
-                let items = assessment.items;
-                items.map(item => item.id === _args.item.id ? _args.item : item);
-                assessment.items = items;
-                let selectionSet = `{updateAssessment(input: {
-                    metadata: {
-                        name: "${assessment.metadata.name}",
-                        suggestedDate: "${assessment.metadata.suggestedDate}",
-                        chapterId: "${assessment.metadata.chapterId}",
-                        rewardPoints: ${assessment.metadata.rewardPoints},
-                        tagNames: [${assessment.metadata.tagNames.map(tag => `"${tag}"`)}]
-                    },
-                    assessmentMetadata: {
-                        skillPoints: ${assessment.assessmentMetadata.skillPoints},
-                        skillTypes: [${assessment.assessmentMetadata.skillTypes.map(skillType => `${skillType}`)}],
-                        initialLearningInterval: ${assessment.assessmentMetadata.initialLearningInterval}
-                    },
-                    items:[
-                        ${assessment.items.map(item => `{
-                            ${item.id ? `id:"${item.id}",` : ''}
-                            associatedSkills:[${item.associatedSkills.map(skill => `{ ${skill.id ? `id:"${skill.id}",` : ''} skillName:"${skill.skillName}"}`)}],
-                            associatedBloomLevels:[${item.associatedBloomLevels.map(level => `${level}`)}]
-                        }`)}
-                    ]
-                }) {
-                    id
-                    items{
-                        id
-                        associatedSkills{
-                            skillName
-                        }
-                        associatedBloomLevels
-                    }
-                }
-                }`;
-                let updatedItems = await context.ContentService.Mutation.mutateContent({
-                    root,
-                    args: { contentId: _args.assessmentId },
-                    selectionSet: selectionSet,
-                    context,
-                    info
-                });
-
-
-                let questionInput = _args.questionInput;
-
-                let selectionSetQuiz = `{
-                    _internal_noauth_updateSelfAssessmentQuestion(input: {
-                      itemId: "${questionInput.itemId}",
-                      text: "${questionInput.text}",
-                      solutionSuggestion: "${questionInput.solutionSuggestion}",
-                      hint: "${questionInput.hint}"
-                    }) {
-                      itemId
-                      text
-                      solutionSuggestion
-                      hint
-                    }
-                  }`;
-                let assessmentId = "assessmentId:" + _args.assessmentId;
-
-                let question = await context.QuizService.Mutation.mutateQuiz({
-                    root,
-                    args: {
-                        assessmentId
-                    },
-                    selectionSet: selectionSetQuiz,
-                    context,
-                    info
-                });
-
-                return question
             },
-
         },
+    },
+};
+
+const handleQuestionMutationCallback: CallbackAfterAssessmentMutation<AssessmentItemType.QuizAssessment> = async ({
+    logger,
+    type,
+    root,
+    _args,
+    context,
+    info,
+    isUpdate,
+    mutationName,
+    returnItem,
+    contentUpdated,
+}) => {
+    logger.log(4, true, `mutating question item with id "${returnItem.id}"...`);
+    try {
+        const questionMutated = await mutateAssessmentInQuizService(
+            logger,
+            type,
+            root,
+            context,
+            info,
+            mutationName,
+            contentUpdated,
+            _args.assessmentId
+        );
+        logger.log(
+            4,
+            false,
+            `question content ${isUpdate ? "updated" : "added"}:`,
+            questionMutated[mutationName].questionPool.find(
+                (questionFetched) => questionFetched.itemId === returnItem.id
+            )
+        );
+
+        logger.log(5, true, "finished");
+        return {
+            assessmentId: questionMutated[mutationName].assessmentId,
+            questionPool: questionMutated[mutationName].questionPool,
+        };
+    } catch (error) {
+        console.error("Error mutating question:", error);
     }
 };
+
+const mutateAssessmentInQuizService = async (
+    logger,
+    type: QuestionTypes,
+    root,
+    context,
+    info,
+    mutationName,
+    questionInput,
+    assessmentId
+) => {
+    let questionTypeDependentFields;
+    switch (type) {
+        case QuestionTypes.MultipleChoice: {
+            questionTypeDependentFields = /* GraphQL */ `
+                answers: [
+                    ${questionInput.answers.map(
+                        (answer) => `{
+                        answerText: ${JSON.stringify(answer.answerText)},
+                        correct: ${answer.correct},
+                        ${answer.feedback ? `feedback: ${JSON.stringify(answer.feedback)}` : ""}
+                    }`
+                    )}
+                ],
+            `;
+            break;
+        }
+        case QuestionTypes.Cloze: {
+            questionTypeDependentFields = /* GraphQL */ `
+                clozeElements: [
+                    ${questionInput.clozeElements.map((element) => {
+                        if (element.type === "TEXT") {
+                            return `{
+                                type: TEXT,
+                                ${element.text ? `text: ${JSON.stringify(element.text)}` : ""}
+                            }`;
+                        } else if (element.type === "BLANK") {
+                            return `{
+                                type: BLANK,
+                                ${element.correctAnswer ? `correctAnswer: "${element.correctAnswer}",` : ""}
+                                ${element.feedback ? `feedback: ${JSON.stringify(element.feedback)}` : ""}
+                            }`;
+                        }
+                    })}
+                ],
+                additionalWrongAnswers: [ ${questionInput.additionalWrongAnswers.map(
+                    (wrongAnswer) => `"${wrongAnswer}"`
+                )} ],
+                showBlanksList: ${questionInput.showBlanksList},
+            `;
+            break;
+        }
+        case QuestionTypes.Association: {
+            questionTypeDependentFields = /* GraphQL */ `
+                correctAssociations: [
+                    ${questionInput.correctAssociations.map(
+                        (association) => `{
+                        left: ${JSON.stringify(association.left)},
+                        right: ${JSON.stringify(association.right)},
+                        ${association.feedback ? `feedback: ${JSON.stringify(association.feedback)}` : ""}
+                    }`
+                    )}
+                ],
+            `;
+            break;
+        }
+        case QuestionTypes.ExactAnswer: {
+            questionTypeDependentFields = /* GraphQL */ `
+                caseSensitive: ${questionInput.caseSensitive},
+                correctAnswers: [
+                    ${questionInput.correctAnswers.map((answer) => `"${answer}"`)}
+                ],
+                ${questionInput.feedback ? `feedback: ${JSON.stringify(questionInput.feedback)}` : ""}
+            `;
+            break;
+        }
+        case QuestionTypes.Numeric: {
+            questionTypeDependentFields = /* GraphQL */ `
+                correctAnswer: ${questionInput.correctAnswer},
+                tolerance: ${questionInput.tolerance},
+                feedback: "${questionInput.feedback}",
+            `;
+            break;
+        }
+        case QuestionTypes.SelfAssessment: {
+            questionTypeDependentFields = /* GraphQL */ `
+                solutionSuggestion: "${questionInput.solutionSuggestion}",
+            `;
+            break;
+        }
+        default:
+            throw new Error(`Unknown internal question type provided: ${type}`);
+    }
+
+    const selectionSetMutationName = /* GraphQL */ `${mutationName}(input: {
+        itemId: "${questionInput.itemId}",
+        ${questionInput.number !== undefined ? `number: ${questionInput.number},` : ""}
+        ${questionInput.text !== undefined ? `text: ${JSON.stringify(questionInput.text)},` : ""}
+        ${questionTypeDependentFields}
+        ${questionInput.hint ? `hint: ${JSON.stringify(questionInput.hint)}` : ""}
+    })`;
+    logger.log(4, false, "mutation content", selectionSetMutationName);
+
+    let fragment;
+    switch (type) {
+        case QuestionTypes.MultipleChoice:
+            fragment = /* GraphQL */ `
+                    ... on MultipleChoiceQuestion {
+                        text,
+                        answers {
+                            answerText,
+                            correct,
+                            feedback
+                        }
+                    }
+            `;
+            break;
+        case QuestionTypes.Cloze:
+            fragment = /* GraphQL */ `
+                    ... on ClozeQuestion {
+                        text,
+                        clozeElements {
+                            __typename,
+                            ... on ClozeTextElement { text },
+                            ... on ClozeBlankElement { correctAnswer, feedback }
+                        },
+                        allBlanks,
+                        showBlanksList,
+                        additionalWrongAnswers
+                    }
+            `;
+            break;
+        case QuestionTypes.Association:
+            fragment = /* GraphQL */ `
+                    ... on AssociationQuestion {
+                        text,
+                        correctAssociations { left, right },
+                        feedback
+                    }
+            `;
+            break;
+        default:
+            fragment = "";
+    }
+
+
+
+    return await context.QuizService.Mutation.mutateQuiz({
+        root,
+        args: { assessmentId: assessmentId },
+        selectionSet: /* GraphQL */ `{
+            ${selectionSetMutationName} {
+                assessmentId
+                questionPool {
+                    __typename
+                    itemId
+                    type
+                    hint
+                    number
+                    ${fragment}
+                }
+            }
+        }`,
+        context,
+        info,
+    });
+};
+
 export default resolvers;

@@ -1,19 +1,42 @@
 
-
-extend type FlashcardSetMutation{
-        """
-  Creates a new flashcard and the linked item
-  """
-  createFlashcard(item:ItemInput!,assessmentId:UUID!,flashcardInput:CreateFlashcardInput!):FlashcardOutput! # resolved in flashcard.ts
+# Resolved in flashcard.ts
+extend type FlashcardSetMutation {
     """
-  Creates a new flashcard and the linked item
-  """
-  updateFlashcard(item:ItemInput!,assessmentId:UUID!,flashcardInput:UpdateFlashcardInput!):FlashcardOutput! # resolved in flashcard.ts
-}
-##when a flashcard is created or changed, also the item information are changed, these type combines the flashcard and the changed information
-type FlashcardOutput{
-  
-  flashcard: Flashcard!
+    Creates a new flashcard and its associated item by internally fetching and mutating the assessment with the new
+    item provided. The created item's id is then used to create the flashcard.
+    """
+    createFlashcard(
+        item: CreateItemInput!
+        assessmentId: UUID!
+        flashcardInput: CreateFlashcardInputWithoutItem!
+    ): FlashcardOutput!
 
-  item: Item!
+    """
+    Updates a flashcard by updating the associated item and the flashcard itself.
+    """
+    updateFlashcard(item: ItemInput!, assessmentId: UUID!, flashcardInput: UpdateFlashcardInput!): FlashcardOutput!
+}
+type FlashcardOutput {
+    flashcard: Flashcard!
+}
+
+"""
+Input to create a new flashcard without an item.
+This is supposed to be consumed by the frontend to create a new flashcard after the associated item has been created.
+""" # KEEP IN SYNC WITH flashcard.graphqls from flashcard_service
+input CreateFlashcardInputWithoutItem {
+    """
+    List of sides of this flashcard. Must be at least two sides.
+    """
+    sides: [FlashcardSideInput!]! @ContainerSize(min: 2)
+}
+
+extend type Flashcard {
+  item: Item! @resolveTo(
+    sourceName: "ContentService"
+    sourceTypeName: "Query"
+    sourceFieldName: "items"
+    keyField: "itemId",
+    keysArg: "ids"
+  )
 }
