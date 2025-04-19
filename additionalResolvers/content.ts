@@ -233,8 +233,67 @@ const resolvers: Resolvers = {
             },
 
         },
+        createAssignmentAssessment: {
+            async resolve(root, _args, context, info) {
+                // find out in which course the chapter this assessment should be created in is
+                let chapters = await context.CourseService.Query._internal_noauth_chaptersByIds({
+                    root,
+                    args: {
+                        ids: [_args.assessmentInput.metadata.chapterId]
+                    },
+                    selectionSet: `
+                    {
+                        course {
+                            id
+                        }
+                    }
+                    `,
+                });
 
+                if (chapters.length !== 1) {
+                    throw new Error("Chapter with given id does not exist.");
+                }
 
+                let courseId = chapters[0].course.id;
+
+                // check that the user is an admin in the course the assessment should be created in
+                if (!context.currentUser.courseMemberships.some((membership) => {
+                    return membership.courseId === courseId && membership.role === "ADMINISTRATOR";
+                })) {
+                    throw new Error("User is not enrolled and/or an admin in the course the assessment should be created in.");
+                }
+
+                // create the assessment
+                let content = await context.ContentService.Mutation._internal_createAssessment({
+                    root,
+                    args: {
+                        courseId: courseId,
+                        input: _args.assessmentInput
+                    },
+                    context,
+                    info
+                });
+
+                // Create the assignment
+                await context.AssignmentService.Mutation._internal_noauth_createAssignment({
+                    root,
+                    args: {
+                        courseId: courseId,
+                        assessmentId: content.id,
+                        input: _args.assignmentInput
+                    },
+                    // we need to define a selection set manually here, otherwise it thinks we don't need any data
+                    // from this mutation and it won't actually be executed
+                    selectionSet: `
+                    {
+                        assessmentId
+                    }
+                    `,
+                });
+
+                return content;
+            }
+        },
     },
     Query: {
         semanticSearch: {

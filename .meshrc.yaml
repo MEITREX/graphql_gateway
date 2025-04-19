@@ -56,6 +56,12 @@ sources:
         endpoint: "{env.DOCPROCAI_SERVICE_URL}"
         operationHeaders:
           CurrentUser: "{context.currentUserJson}"
+  - name: AssignmentService
+    handler:
+        graphql:
+          endpoint: "{env.ASSIGNMENT_SERVICE_URL}"
+          operationHeaders:
+            CurrentUser: "{context.currentUserJson}"
 additionalTypeDefs:
   - "./additionalTypeDefs/content.graphqls"
   - "./additionalTypeDefs/course.graphqls"
