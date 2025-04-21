@@ -97,6 +97,7 @@ extend type QuizMutation {
 type QuizOutput {
     assessmentId: UUID!
     questionPool: [Question!]!
+    modifiedQuestion: Question!
 }
 
 # Sadly, it's not possible to extend the Question interface which every question type implements.
@@ -107,7 +108,7 @@ extend type MultipleChoiceQuestion {
         @resolveTo(
             sourceName: "ContentService"
             sourceTypeName: "Query"
-            sourceFieldName: "items"
+            sourceFieldName: "_internal_noauth_items"
             keyField: "itemId"
             keysArg: "ids"
         )
@@ -118,7 +119,7 @@ extend type ClozeQuestion {
         @resolveTo(
             sourceName: "ContentService"
             sourceTypeName: "Query"
-            sourceFieldName: "items"
+            sourceFieldName: "_internal_noauth_items"
             keyField: "itemId"
             keysArg: "ids"
         )
@@ -129,7 +130,7 @@ extend type AssociationQuestion {
         @resolveTo(
             sourceName: "ContentService"
             sourceTypeName: "Query"
-            sourceFieldName: "items"
+            sourceFieldName: "_internal_noauth_items"
             keyField: "itemId"
             keysArg: "ids"
         )
@@ -140,7 +141,7 @@ extend type ExactAnswerQuestion {
         @resolveTo(
             sourceName: "ContentService"
             sourceTypeName: "Query"
-            sourceFieldName: "items"
+            sourceFieldName: "_internal_noauth_items"
             keyField: "itemId"
             keysArg: "ids"
         )
@@ -151,7 +152,7 @@ extend type NumericQuestion {
         @resolveTo(
             sourceName: "ContentService"
             sourceTypeName: "Query"
-            sourceFieldName: "items"
+            sourceFieldName: "_internal_noauth_items"
             keyField: "itemId"
             keysArg: "ids"
         )

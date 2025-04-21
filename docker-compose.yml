@@ -5,7 +5,7 @@ services:
     build:
       context: ./../graphql_gateway
       dockerfile: Dockerfile
-    restart: always
+    restart: unless-stopped
     container_name: gateway
     expose:
       - 8080
