@@ -282,6 +282,7 @@ const resolvers: Resolvers = {
                         assessmentId: content.id,
                         input: _args.assignmentInput
                     },
+                    context,
                     // we need to define a selection set manually here, otherwise it thinks we don't need any data
                     // from this mutation and it won't actually be executed
                     selectionSet: `
