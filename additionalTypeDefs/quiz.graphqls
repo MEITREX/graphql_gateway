@@ -1,65 +1,206 @@
+# resolved in quiz.ts
 extend type QuizMutation {
-    
-  """
-  Add a multiple choice question to the quiz questions, at the end of the list.
-  """
-  addMultipleChoiceQuestion(questionInput: CreateMultipleChoiceQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-
-  """
-  Update a multiple choice question in the quiz questions.
-  """
-  updateMultipleChoiceQuestion(questionInput: UpdateMultipleChoiceQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-
-  """
-  Add a cloze question to the quiz questions, at the end of the list.
-  """
-  addClozeQuestion(questionInput: CreateClozeQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-  """
-  Update a cloze question in the quiz questions.
-  """
-  updateClozeQuestion(questionInput: UpdateClozeQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-
-  """
-  Add an association question to the quiz questions, at the end of the list.
-  """
-  addAssociationQuestion(questionInput: CreateAssociationQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-  """
-  Update an association question in the quiz questions.
-  """
-  updateAssociationQuestion(questionInput: UpdateAssociationQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-
-  """
-  Add an free text question with exact answer to the quiz questions, at the end of the list.
-  """
-  addExactAnswerQuestion(questionInput: CreateExactAnswerQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-  """
-  Update an free text question with exact answer in the quiz questions.
-  """
-  updateExactAnswerQuestion(questionInput:  UpdateExactAnswerQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-  """
-  Add a numeric question to the quiz questions, at the end of the list.
-  """
-  addNumericQuestion(questionInput: CreateNumericQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-  """
-  Update a numeric question in the quiz questions.
-  """
-  updateNumericQuestion(questionInput: UpdateNumericQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-
-  """
-  Add a self assessment question to the quiz questions, at the end of the list.
-  """
-  addSelfAssessmentQuestion(questionInput: CreateSelfAssessmentQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-  """
-  Update a self assessment question in the quiz questions.
-  """
-  updateSelfAssessmentQuestion(questionInput: UpdateSelfAssessmentQuestionInput!, assessmentId:UUID!, item:ItemInput!):QuizOutput! # resolved in quiz.ts
-    
+    """
+    Add a multiple choice question to the quiz questions, at the end of the list.
+    """
+    addMultipleChoiceQuestion(
+        questionInput: CreateMultipleChoiceQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
+    """
+    Update a multiple choice question in the quiz questions.
+    """
+    updateMultipleChoiceQuestion(
+        questionInput: UpdateMultipleChoiceQuestionInput!
+        assessmentId: UUID!
+        item: ItemInput!
+    ): QuizOutput!
+    """
+    Add a cloze question to the quiz questions, at the end of the list.
+    """
+    addClozeQuestion(
+        questionInput: CreateClozeQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
+    """
+    Update a cloze question in the quiz questions.
+    """
+    updateClozeQuestion(questionInput: UpdateClozeQuestionInput!, assessmentId: UUID!, item: ItemInput!): QuizOutput!
+    """
+    Add an association question to the quiz questions, at the end of the list.
+    """
+    addAssociationQuestion(
+        questionInput: CreateAssociationQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
+    """
+    Update an association question in the quiz questions.
+    """
+    updateAssociationQuestion(
+        questionInput: UpdateAssociationQuestionInput!
+        assessmentId: UUID!
+        item: ItemInput!
+    ): QuizOutput!
+    """
+    Add an free text question with exact answer to the quiz questions, at the end of the list.
+    """
+    addExactAnswerQuestion(
+        questionInput: CreateExactAnswerQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
+    """
+    Update an free text question with exact answer in the quiz questions.
+    """
+    updateExactAnswerQuestion(
+        questionInput: UpdateExactAnswerQuestionInput!
+        assessmentId: UUID!
+        item: ItemInput!
+    ): QuizOutput!
+    """
+    Add a numeric question to the quiz questions, at the end of the list.
+    """
+    addNumericQuestion(
+        questionInput: CreateNumericQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
+    """
+    Update a numeric question in the quiz questions.
+    """
+    updateNumericQuestion(
+        questionInput: UpdateNumericQuestionInput!
+        assessmentId: UUID!
+        item: ItemInput!
+    ): QuizOutput!
+    """
+    Add a self assessment question to the quiz questions, at the end of the list.
+    """
+    addSelfAssessmentQuestion(
+        questionInput: CreateSelfAssessmentQuestionInputWithoutItem!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): QuizOutput!
+    """
+    Update a self assessment question in the quiz questions.
+    """
+    updateSelfAssessmentQuestion(
+        questionInput: UpdateSelfAssessmentQuestionInput!
+        assessmentId: UUID!
+        item: ItemInput!
+    ): QuizOutput!
 }
-type QuizOutput{
-  
-  assessmentId: UUID!
 
-  questionPool:[Question!]!
+type QuizOutput {
+    assessmentId: UUID!
+    questionPool: [Question!]!
+    modifiedQuestion: Question!
+}
 
-  item: Item!
+# Sadly, it's not possible to extend the Question interface which every question type implements.
+# Therefore, we have to extend every question type individually...
+
+extend type MultipleChoiceQuestion {
+    item: Item!
+        @resolveTo(
+            sourceName: "ContentService"
+            sourceTypeName: "Query"
+            sourceFieldName: "_internal_noauth_items"
+            keyField: "itemId"
+            keysArg: "ids"
+        )
+}
+
+extend type ClozeQuestion {
+    item: Item!
+        @resolveTo(
+            sourceName: "ContentService"
+            sourceTypeName: "Query"
+            sourceFieldName: "_internal_noauth_items"
+            keyField: "itemId"
+            keysArg: "ids"
+        )
+}
+
+extend type AssociationQuestion {
+    item: Item!
+        @resolveTo(
+            sourceName: "ContentService"
+            sourceTypeName: "Query"
+            sourceFieldName: "_internal_noauth_items"
+            keyField: "itemId"
+            keysArg: "ids"
+        )
+}
+
+extend type ExactAnswerQuestion {
+    item: Item!
+        @resolveTo(
+            sourceName: "ContentService"
+            sourceTypeName: "Query"
+            sourceFieldName: "_internal_noauth_items"
+            keyField: "itemId"
+            keysArg: "ids"
+        )
+}
+
+extend type NumericQuestion {
+    item: Item!
+        @resolveTo(
+            sourceName: "ContentService"
+            sourceTypeName: "Query"
+            sourceFieldName: "_internal_noauth_items"
+            keyField: "itemId"
+            keysArg: "ids"
+        )
+}
+
+input CreateMultipleChoiceQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    answers: [MultipleChoiceAnswerInput!]!
+    hint: JSON
+}
+
+input CreateAssociationQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    correctAssociations: [CreateAssociationInput!]!
+    hint: JSON
+}
+
+input CreateClozeQuestionInputWithoutItem {
+    number: Int
+    clozeElements: [CreateClozeElementInput!]!
+    additionalWrongAnswers: [String!]! = []
+    showBlanksList: Boolean! = true
+    hint: JSON
+}
+
+input CreateExactAnswerQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    caseSensitive: Boolean! = false
+    correctAnswers: [String!]!
+    feedback: JSON
+    hint: JSON
+}
+
+input CreateNumericQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    hint: JSON
+    correctAnswer: Float!
+    tolerance: Float!
+    feedback: JSON
+}
+
+input CreateSelfAssessmentQuestionInputWithoutItem {
+    number: Int
+    text: JSON!
+    solutionSuggestion: JSON!
+    hint: JSON
 }

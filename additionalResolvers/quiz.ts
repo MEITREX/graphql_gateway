@@ -221,20 +221,16 @@ const handleQuestionMutationCallback: CallbackAfterAssessmentMutation<Assessment
             contentUpdated,
             _args.assessmentId
         );
-        logger.log(
-            4,
-            false,
-            `question content ${isUpdate ? "updated" : "added"}:`,
-            questionMutated[mutationName].questionPool.find(
-                (questionFetched) => questionFetched.itemId === returnItem.id
-            )
+        const modifiedQuestion = questionMutated[mutationName].questionPool.find(
+            (questionFetched) => questionFetched.itemId === returnItem.id
         );
+        logger.log(4, false, `question content ${isUpdate ? "updated" : "added"}:`, modifiedQuestion);
 
         logger.log(5, true, "finished");
         return {
             assessmentId: questionMutated[mutationName].assessmentId,
             questionPool: questionMutated[mutationName].questionPool,
-            item: returnItem,
+            modifiedQuestion,
         };
     } catch (error) {
         console.error("Error mutating question:", error);

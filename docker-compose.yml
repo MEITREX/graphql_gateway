@@ -5,7 +5,7 @@ services:
     build:
       context: ./../graphql_gateway
       dockerfile: Dockerfile
-    restart: always
+    restart: unless-stopped
     container_name: gateway
     expose:
       - 8080
@@ -24,9 +24,13 @@ services:
       QUIZ_SERVICE_URL: http://app-quiz:9001/graphql
       DOCPROCAI_SERVICE_URL: http://app-docprocai:9901/graphql/
       DEBUG: 0
-      ENABLE_LOGGING: 0 # Set to 1 to enable custom logging
+      ENABLE_LOGGING: 1 # Set to 1 to enable custom logging
     networks:
       - dapr-network
+    extra_hosts:
+      # Required for Docker on Linux to resolve host.docker.internal to machine's localhost
+      # Source: https://stackoverflow.com/a/24326540
+      - "host.docker.internal:host-gateway"
 networks:
   dapr-network:
     external: true
