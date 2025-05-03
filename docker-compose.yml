@@ -23,6 +23,7 @@ services:
       SKILLLEVEL_SERVICE_URL: http://app-skilllevel:8001/graphql
       QUIZ_SERVICE_URL: http://app-quiz:9001/graphql
       DOCPROCAI_SERVICE_URL: http://app-docprocai:9901/graphql/
+      GAMIFICATION_SERVICE_URL: http://app-gamification:1201/graphql
       DEBUG: 0
       ENABLE_LOGGING: 1 # Set to 1 to enable custom logging
     networks:
