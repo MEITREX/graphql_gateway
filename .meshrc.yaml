@@ -71,6 +71,7 @@ additionalTypeDefs:
   - "./additionalTypeDefs/flashcard.graphqls"
   - "./additionalTypeDefs/quiz.graphqls"
   - "./additionalTypeDefs/media.graphqls"
+  - "./additionalTypeDefs/assignment.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
