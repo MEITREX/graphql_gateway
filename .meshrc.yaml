@@ -76,6 +76,7 @@ additionalResolvers:
   - "./additionalResolvers/course.ts"
   - "./additionalResolvers/flashcard.ts"
   - "./additionalResolvers/quiz.ts"
+  - "./additionalResolvers/user.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:

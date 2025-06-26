@@ -12,27 +12,9 @@ extend type UserInfo {
     }
   )
 
-  availableCourseMemberships: [CourseMembership!]! @resolveTo(
-    sourceName: "CourseService",
-    sourceTypeName: "Query",
-    sourceFieldName: "_internal_noauth_courseMembershipsByUserId",
-    requiredSelectionSet: "{ id }",
-    sourceArgs: {
-      userId: "{root.id}",
-      availabilityFilter: true
-    }
-  )
+  availableCourseMemberships: [CourseMembership!]! # resolved in user.ts
 
-  unavailableCourseMemberships: [CourseMembership!]! @resolveTo(
-    sourceName: "CourseService",
-    sourceTypeName: "Query",
-    sourceFieldName: "_internal_noauth_courseMembershipsByUserId",
-    requiredSelectionSet: "{ id }",
-    sourceArgs: {
-      userId: "{root.id}",
-      availabilityFilter: false
-    }
-  )
+  unavailableCourseMemberships: [CourseMembership!]! # resolved in user.ts
 
   """
   Media records of this user.
