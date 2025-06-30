@@ -62,6 +62,12 @@ sources:
         endpoint: "{env.GAMIFICATION_SERVICE_URL}"
         operationHeaders:
           CurrentUser: "{context.currentUserJson}"
+  - name: TutorService
+    handler:
+      graphql:
+        endpoint: "{env.TUTOR_SERVICE_URL}"
+        operationHeaders:
+          CurrentUser: "{context.currentUserJson}"
 additionalTypeDefs:
   - "./additionalTypeDefs/content.graphqls"
   - "./additionalTypeDefs/course.graphqls"
