@@ -61,7 +61,9 @@ The `additionalResolvers` section defines code for custom GraphQL queries which 
 | SKILLLEVEL_SERVICE_URL | URL for skilllevel service GraphQL | http://host.docker.internal:8001/graphql                                   | http://localhost:3500/v1.0/invoke/skilllevel-service/method/graphql |
 | QUIZ_SERVICE_URL       | URL for quiz service GraphQL       | http://host.docker.internal:9001/graphql                                   | http://localhost:3500/v1.0/invoke/quiz-service/method/graphql       |                                                               |
 | ASSIGNMENT_SERVICE_URL | URL for assignment service GraphQL | http://host.docker.internal:11001/graphql                                  | http://localhost:3500/v1.0/invoke/assignment-service/method/graphql  |
+| GAMIFICATION_SERVICE_URL | URL for gamification service GraphQL | http://host.docker.internal:1201/graphql                                   | http://localhost:1200\v1.0/invoke/gamifiation-service/method/graphql  |
 | JWKS_URL               | URL for jwks keycloak              | http://host.docker.internal:9009/realms/GITS/protocol/openid-connect/certs | http://keycloak/keycloak/realms/GITS/protocol/openid-connect/certs  |
+
 
 
 ### Other properties

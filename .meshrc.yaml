@@ -62,6 +62,12 @@ sources:
           endpoint: "{env.ASSIGNMENT_SERVICE_URL}"
           operationHeaders:
             CurrentUser: "{context.currentUserJson}"
+  - name: GamificationService
+    handler:
+      graphql:
+        endpoint: "{env.GAMIFICATION_SERVICE_URL}"
+        operationHeaders:
+          CurrentUser: "{context.currentUserJson}"
 additionalTypeDefs:
   - "./additionalTypeDefs/content.graphqls"
   - "./additionalTypeDefs/course.graphqls"
@@ -77,6 +83,7 @@ additionalResolvers:
   - "./additionalResolvers/course.ts"
   - "./additionalResolvers/flashcard.ts"
   - "./additionalResolvers/quiz.ts"
+  - "./additionalResolvers/user.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
