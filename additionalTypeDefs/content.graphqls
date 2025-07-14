@@ -187,6 +187,58 @@ extend type Quiz {
   )
 }
 
+extend type AssignmentAssessment {
+  """
+  The assignment of the assessment.
+  If this is null the system is in an inconsistent state and the assessment should be deleted.
+  """
+  assignment: Assignment @resolveTo(
+    sourceName: "AssignmentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "findAssignmentsByAssessmentIds",
+    keyField: "id",
+    keysArg: "assessmentIds"
+  )
+
+  """
+  The progress of processing the assessment. In particular when processing is done,
+  the assessment's task contents will have been indexed for search.
+  """
+  aiProcessingProgress: AiEntityProcessingProgress! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getContentsAiProcessingProgress",
+    keyField: "id",
+    keysArg: "contentIds"
+  )
+
+  """
+  Tags suggested for this assessment by the AI system.
+  """
+  suggestedTags: [String!]! @resolveTo(
+    sourceName: "DocprocaiService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_getAssessmentSuggestedTags",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      assessmentId: "{root.id}"
+    }
+  )
+}
+
+extend type Assignment {
+  """
+  The content this assignment belongs to.
+  """
+  content: Content @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "contentsByIds",
+    keyField: "assessmentId",
+    keysArg: "ids"
+  )
+}
+
 extend type ContentMetadata {
   """
   The course this content belongs to.
@@ -225,6 +277,10 @@ extend type Mutation {
   Creates a new flashcard set assessment and a new, linked flashcard set with the given properties.
   """
   createFlashcardSetAssessment(assessmentInput: CreateAssessmentInput!, flashcardSetInput: CreateFlashcardSetInput!): FlashcardSetAssessment # resolved in content.ts
- 
+
+  """
+  Creates a new assignment assessment and a new, linked assignment with the given properties.
+  """
+  createAssignmentAssessment(assessmentInput: CreateAssessmentInput!, assignmentInput: CreateAssignmentInput!): AssignmentAssessment! # resolved in content.ts
 
 }
