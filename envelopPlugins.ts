@@ -12,6 +12,7 @@ type UserType = {
   userName: string;
   firstName: string;
   lastName: string;
+  nickname: string;
   authToken: string;
   courseMemberships: UserCourseMembership[];
   realmRoles: string[];
@@ -55,6 +56,24 @@ async function resolveUserAuthenticated(context) {
       `
     });
 
+    // query the user service to found out the nickname of the user
+    const userNickname = await context.UserService.Query._internal_noauth_userNicknameByUserId({
+      args: {
+        userId: payload.sub
+      },
+      selectionSet:  `
+      {
+        nickname
+      }
+      `
+    });
+
+    // check that we received a response
+    if (userNickname == null) {
+      console.error("Failed to retrieve user nickname.");
+      return null;
+    }
+
     // check that we received a response
     if (courseMemberships == null) {
       console.error("Failed to retrieve user course memberships.");
@@ -67,6 +86,7 @@ async function resolveUserAuthenticated(context) {
       userName: payload.preferred_username,
       firstName: payload.given_name,
       lastName: payload.family_name,
+      nickname: userNickname.nickname,
       authToken: authHeader,
       courseMemberships: courseMemberships.map((membership) => {
         return {
