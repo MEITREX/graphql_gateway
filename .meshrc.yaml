@@ -56,6 +56,12 @@ sources:
         endpoint: "{env.DOCPROCAI_SERVICE_URL}"
         operationHeaders:
           CurrentUser: "{context.currentUserJson}"
+  - name: AssignmentService
+    handler:
+        graphql:
+          endpoint: "{env.ASSIGNMENT_SERVICE_URL}"
+          operationHeaders:
+            CurrentUser: "{context.currentUserJson}"
   - name: GamificationService
     handler:
       graphql:
@@ -77,6 +83,7 @@ additionalTypeDefs:
   - "./additionalTypeDefs/flashcard.graphqls"
   - "./additionalTypeDefs/quiz.graphqls"
   - "./additionalTypeDefs/media.graphqls"
+  - "./additionalTypeDefs/assignment.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"

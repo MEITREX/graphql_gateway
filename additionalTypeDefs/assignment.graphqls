@@ -1,0 +1,12 @@
+extend type Grading {
+    """
+    The user this grading belongs to.
+    """
+    student: PublicUserInfo @resolveTo(
+        sourceName: "UserService"
+        sourceTypeName: "Query"
+        sourceFieldName: "findPublicUserInfos"
+        keyField: "studentId"
+        keysArg: "ids"
+    )
+}
