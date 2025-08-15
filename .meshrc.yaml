@@ -84,6 +84,7 @@ additionalTypeDefs:
   - "./additionalTypeDefs/quiz.graphqls"
   - "./additionalTypeDefs/media.graphqls"
   - "./additionalTypeDefs/assignment.graphqls"
+  - "./additionalTypeDefs/tutor.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
