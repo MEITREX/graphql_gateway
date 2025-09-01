@@ -67,9 +67,19 @@ extend type Course {
   )
 
   widgetRecommendations: [GamificationCategoryRecommendation!]! @resolveTo(
-    sourceName: "ContentService",
+    sourceName: "GamificationService",
     sourceTypeName: "Query",
     sourceFieldName: "_internal_noauth_currentUserWidgetRecommendations",
+    requiredSelectionSet: "{ id }",
+    sourceArgs: {
+      courseId: "{root.id}"
+    }
+  )
+
+  dailyQuests: QuestSet! @resolveTo(
+    sourceName: "GamificationService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_currentUserDailyQuestSet",
     requiredSelectionSet: "{ id }",
     sourceArgs: {
       courseId: "{root.id}"
