@@ -1,0 +1,23 @@
+extend type DocumentSource {
+    mediaRecords: [MediaRecord!]! @resolveTo(
+        sourceName: "MediaService",
+        sourceTypeName: "Query",
+        sourceFieldName: "findMediaRecordsByIds",
+        requiredSelectionSet: "{ mediaRecordId }",
+        sourceArgs: {
+            ids: "{root.mediaRecordId}"
+        }
+    )
+}
+
+extend type VideoSource {
+    mediaRecords: [MediaRecord!]! @resolveTo(
+        sourceName: "MediaService",
+        sourceTypeName: "Query",
+        sourceFieldName: "findMediaRecordsByIds",
+        requiredSelectionSet: "{ mediaRecordId }",
+        sourceArgs: {
+            ids: "{root.mediaRecordId}"
+        }
+    )
+}
