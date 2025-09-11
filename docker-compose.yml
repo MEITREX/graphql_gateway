@@ -26,6 +26,7 @@ services:
       ASSIGNMENT_SERVICE_URL: http://app-assignment:1101/graphql
       GAMIFICATION_SERVICE_URL: http://app-gamification:1201/graphql
       TUTOR_SERVICE_URL: http://app-tutor:1301/graphql
+      NOTIFICATION_SERVICE_URL: http://app-notification:1301/graphql
       DEBUG: 0
       ENABLE_LOGGING: 1 # Set to 1 to enable custom logging
     networks:
