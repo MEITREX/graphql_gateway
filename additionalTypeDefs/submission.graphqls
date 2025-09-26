@@ -1,0 +1,36 @@
+extend type SubmissionMutation {
+    """
+    Add a task to the Submission.
+    """
+    addTask(
+        submissionInput: InputTask!
+        assessmentId: UUID!
+        item: CreateItemInput!
+    ): TaskOutput!
+
+    """
+    Updates a task to the Submission.
+    """
+    updateTask(
+        submissionInput: InputTask!
+        assessmentId: UUID!
+        item: ItemInput!
+    ): TaskOutput!
+}
+
+type TaskOutput {
+    assessmentId: UUID!
+    tasks: [Task!]!
+    modifiedTask: Task!
+}
+
+extend type Task {
+    item: Item!
+    @resolveTo(
+        sourceName: "ContentService"
+        sourceTypeName: "Query"
+        sourceFieldName: "_internal_noauth_items"
+        keyField: "itemId"
+        keysArg: "ids"
+    )
+}

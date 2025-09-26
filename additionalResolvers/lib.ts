@@ -5,6 +5,7 @@ import { Args } from "./types";
 export enum AssessmentItemType {
     QuizAssessment = "QuizAssessment",
     FlashcardAssessment = "FlashcardAssessment",
+    SubmissionAssessment = "SubmissionAssessment",
 }
 
 class Logger {
