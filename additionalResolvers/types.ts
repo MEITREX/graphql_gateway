@@ -3,15 +3,14 @@ import { AssessmentItemType } from "./lib";
 export type Args<T extends AssessmentItemType> = {
     item: { id: string };
     assessmentId: string;
-} & (T extends AssessmentItemType.QuizAssessment
-    ? {
-          questionInput: any;
-      }
-    : T extends AssessmentItemType.FlashcardAssessment
-    ? {
-          flashcardInput: any;
-      }
-    : never);
+} & (
+    T extends AssessmentItemType.QuizAssessment
+        ? { questionInput: any }       // Quiz-specific input
+        : T extends AssessmentItemType.FlashcardAssessment
+        ? { flashcardInput: any }      // Flashcard-specific input
+        : T extends AssessmentItemType.SubmissionAssessment
+        ? { submissionInput: any }     // Submission-specific input
+        : never);
 
 type AssessmentMetadata = {
     name: string;

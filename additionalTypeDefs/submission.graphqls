@@ -3,7 +3,7 @@ extend type SubmissionMutation {
     Add a task to the Submission.
     """
     addTask(
-        submissionInput: InputTask!
+        submissionInput: InputTaskWithoutItem!
         assessmentId: UUID!
         item: CreateItemInput!
     ): TaskOutput!
@@ -16,6 +16,12 @@ extend type SubmissionMutation {
         assessmentId: UUID!
         item: ItemInput!
     ): TaskOutput!
+}
+
+input InputTaskWithoutItem {
+    number: Int!
+    name: String!
+    maxScore: Int!
 }
 
 type TaskOutput {

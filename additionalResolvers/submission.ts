@@ -15,8 +15,8 @@ const resolvers: Resolvers = {
              */
             async resolve(root, _args, context, info) {
                 return handleAssessmentMutationThenCallback({
-                    assessmentType: AssessmentItemType.QuizAssessment,
-                    type: QuestionTypes.MultipleChoice,
+                    assessmentType: AssessmentItemType.SubmissionAssessment,
+                    type: null,
                     mutationName: "_internal_noauth_addTask",
                     callback: handleSubmissionMutationCallback,
                     root,
@@ -37,24 +37,24 @@ const resolvers: Resolvers = {
              */
             async resolve(root, _args, context, info) {
                 return handleAssessmentMutationThenCallback({
-                    assessmentType: AssessmentItemType.QuizAssessment,
-                    type: QuestionTypes.MultipleChoice,
+                    assessmentType: AssessmentItemType.SubmissionAssessment,
+                    type: null,
                     mutationName: "_internal_noauth_updateTask",
                     callback: handleSubmissionMutationCallback,
                     root,
                     _args,
                     context,
                     info,
+                    isUpdate: true,
                 });
             },
         }
     }
 }
 
-const handleSubmissionMutationCallback: CallbackAfterAssessmentMutation<AssessmentItemType.QuizAssessment> = async ({
+const handleSubmissionMutationCallback: CallbackAfterAssessmentMutation<AssessmentItemType.SubmissionAssessment> = async ({
 
     logger,
-    type,
     root,
     _args,
     context,
@@ -68,7 +68,6 @@ const handleSubmissionMutationCallback: CallbackAfterAssessmentMutation<Assessme
     try {
         const submissionMutated = await mutateSubmissionAssessmentInMediaService(
             logger,
-            type,
             root,
             context,
             info,
@@ -94,7 +93,6 @@ const handleSubmissionMutationCallback: CallbackAfterAssessmentMutation<Assessme
 
 const mutateSubmissionAssessmentInMediaService = async (
     logger,
-    type: QuestionTypes,
     root,
     context,
     info,
@@ -104,21 +102,30 @@ const mutateSubmissionAssessmentInMediaService = async (
 ) => {
     const selectionSetMutationName = /* GraphQL */ `${mutationName}(input: {
         itemId: "${taskInput.itemId}",
-        maxScore: "${taskInput.maxScore}"
+        maxScore: ${taskInput.maxScore},
+        name: "${taskInput.name}",
+        number: ${taskInput.number}
     })`;
     logger.log(4, false, "mutation content", selectionSetMutationName);
 
-
-    return await context.MediaService.Mutation.mutateQuiz({
+    return await context.MediaService.Mutation.mutateSubmission({
         root,
         args: { assessmentId: assessmentId },
         selectionSet: /* GraphQL */ `{
             ${selectionSetMutationName} {
-            itemId
-            maxScore
+            assessmentId
+            courseId
+            endDate
+            tasks {
+                name,
+                itemId,
+                maxScore
+            }
         }
         }`,
         context,
         info,
     });
 };
+
+export default resolvers;
