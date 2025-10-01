@@ -119,7 +119,8 @@ const mutateSubmissionAssessmentInMediaService = async (
             tasks {
                 name,
                 itemId,
-                maxScore
+                maxScore,
+                number
             }
         }
         }`,
