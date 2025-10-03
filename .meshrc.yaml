@@ -85,12 +85,14 @@ additionalTypeDefs:
   - "./additionalTypeDefs/media.graphqls"
   - "./additionalTypeDefs/assignment.graphqls"
   - "./additionalTypeDefs/tutor.graphqls"
+  - "./additionalTypeDefs/submission.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
   - "./additionalResolvers/flashcard.ts"
   - "./additionalResolvers/quiz.ts"
   - "./additionalResolvers/user.ts"
+  - "./additionalResolvers/submission.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
@@ -101,3 +103,4 @@ transforms:
         - Query.!_internal*
         - FlashcardSetMutation.!_internal*
         - QuizMutation.!_internal*
+        - SubmissionMutation.!_internal*
