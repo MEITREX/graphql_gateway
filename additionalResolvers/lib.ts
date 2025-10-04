@@ -5,6 +5,7 @@ import { Args } from "./types";
 export enum AssessmentItemType {
     QuizAssessment = "QuizAssessment",
     FlashcardAssessment = "FlashcardAssessment",
+    SubmissionAssessment = "SubmissionAssessment",
 }
 
 class Logger {
@@ -33,11 +34,17 @@ type FlashcardAssessmentMutation = {
     assessmentType: AssessmentItemType.FlashcardAssessment;
     type: FlashcardTypes;
 };
+type SubmissionAssessmentMutation = {
+    assessmentType: AssessmentItemType.SubmissionAssessment;
+    type: null
+};
 
 type AssessmentMutationHandlerArgs<T extends AssessmentItemType> = (T extends AssessmentItemType.FlashcardAssessment
     ? FlashcardAssessmentMutation
     : T extends AssessmentItemType.QuizAssessment
     ? QuizAssessmentMutation
+    : T extends AssessmentItemType.SubmissionAssessment
+    ? SubmissionAssessmentMutation
     : never) & {
     mutationName: string;
     callback: CallbackAfterAssessmentMutation<T>;
@@ -116,7 +123,6 @@ export const handleAssessmentMutationThenCallback = async <T extends AssessmentI
         );
         assessment = updatedAssessment.updateAssessment;
     }
-
     // Determine the input parameter name based on the assessment type
 
     let inputType;
@@ -126,6 +132,9 @@ export const handleAssessmentMutationThenCallback = async <T extends AssessmentI
             break;
         case AssessmentItemType.FlashcardAssessment:
             inputType = "flashcardInput";
+            break;
+        case AssessmentItemType.SubmissionAssessment:
+            inputType = "submissionInput";
             break;
         default:
             throw new Error(`Unsupported assessment type: ${assessmentType}`);
@@ -176,6 +185,9 @@ const fetchAssessmentFromContentService = async (assessmentType, root, context, 
         case AssessmentItemType.FlashcardAssessment:
             assessmentMutationString = "FlashcardSetAssessment";
             break;
+        case AssessmentItemType.SubmissionAssessment:
+            assessmentMutationString = "SubmissionAssessment";
+            break;
         default:
             throw new Error(`Unsupported assessment type: ${assessmentType}`);
     }
@@ -213,7 +225,6 @@ const fetchAssessmentFromContentService = async (assessmentType, root, context, 
         context,
         info,
     });
-
     return assessments[0];
 };
 
@@ -251,7 +262,6 @@ const mutateAssessmentInContentService = async (root, context, info, assessment,
             associatedBloomLevels
         }
     }}`;
-
     return await context.ContentService.Mutation.mutateContent({
         root,
         args: { contentId: assessmentId },
