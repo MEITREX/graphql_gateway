@@ -91,6 +91,7 @@ additionalResolvers:
   - "./additionalResolvers/flashcard.ts"
   - "./additionalResolvers/quiz.ts"
   - "./additionalResolvers/user.ts"
+  - "./additionalResolvers/media.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
