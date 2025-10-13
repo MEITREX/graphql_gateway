@@ -29,15 +29,7 @@ extend type MediaRecord {
   Returns the contents this media record is linked to. If the user does not have access to a particular
   content, null will be returned in its place.
   """
-  contents: [Content]! @resolveTo(
-    sourceName: "ContentService",
-    sourceTypeName: "Query",
-    sourceFieldName: "findContentsByIds",
-    requiredSelectionSet: "{ contentIds }",
-    sourceArgs: {
-      ids: "{root.contentIds}"
-    }
-  )
+  contents: [Content]! # resolved in media.ts
 
   """
   Returns the segments this media record consists of.

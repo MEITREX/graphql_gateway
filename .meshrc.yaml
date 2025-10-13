@@ -100,6 +100,7 @@ additionalResolvers:
   - "./additionalResolvers/flashcard.ts"
   - "./additionalResolvers/quiz.ts"
   - "./additionalResolvers/user.ts"
+  - "./additionalResolvers/media.ts"
   - "./additionalResolvers/submission.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
