@@ -15,7 +15,7 @@ const resolvers: Resolvers = {
         addMultipleChoiceQuestion: {
             /**
              * @param root { assessmentId: <UUID> } ???
-             * @param _args GraqhQL function parameters defined in flashcard.graphqls file
+             * @param _args GraqhQL function parameters defined in quiz.graphqls file
              * @param context Browser context (https request headers, etc.)
              * @param info GraphQL info/ introspection object
              * @param params logger, currentUser, query, token, service objects, etc.

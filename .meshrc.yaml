@@ -58,10 +58,10 @@ sources:
           CurrentUser: "{context.currentUserJson}"
   - name: AssignmentService
     handler:
-        graphql:
-          endpoint: "{env.ASSIGNMENT_SERVICE_URL}"
-          operationHeaders:
-            CurrentUser: "{context.currentUserJson}"
+      graphql:
+        endpoint: "{env.ASSIGNMENT_SERVICE_URL}"
+        operationHeaders:
+          CurrentUser: "{context.currentUserJson}"
   - name: GamificationService
     handler:
       graphql:
@@ -74,6 +74,13 @@ sources:
         endpoint: "{env.TUTOR_SERVICE_URL}"
         operationHeaders:
           CurrentUser: "{context.currentUserJson}"
+  - name: NotificationService
+    handler:
+      graphql:
+        endpoint: "{env.NOTIFICATION_SERVICE_URL}"
+        operationHeaders:
+          CurrentUser: "{context.currentUserJson}"
+
 additionalTypeDefs:
   - "./additionalTypeDefs/content.graphqls"
   - "./additionalTypeDefs/course.graphqls"
@@ -85,6 +92,8 @@ additionalTypeDefs:
   - "./additionalTypeDefs/media.graphqls"
   - "./additionalTypeDefs/assignment.graphqls"
   - "./additionalTypeDefs/tutor.graphqls"
+  - "./additionalTypeDefs/notification.graphqls"
+  - "./additionalTypeDefs/submission.graphqls"
 additionalResolvers:
   - "./additionalResolvers/content.ts"
   - "./additionalResolvers/course.ts"
@@ -92,6 +101,7 @@ additionalResolvers:
   - "./additionalResolvers/quiz.ts"
   - "./additionalResolvers/user.ts"
   - "./additionalResolvers/media.ts"
+  - "./additionalResolvers/submission.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
@@ -102,3 +112,4 @@ transforms:
         - Query.!_internal*
         - FlashcardSetMutation.!_internal*
         - QuizMutation.!_internal*
+        - SubmissionMutation.!_internal*

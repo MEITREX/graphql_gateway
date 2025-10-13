@@ -1,0 +1,17 @@
+extend type UserInfo {
+    notifications: [NotificationData!]! @resolveTo(
+        sourceName: "NotificationService",
+        sourceTypeName: "Query",
+        sourceFieldName: "notifications",
+        requiredSelectionSet: "{ id }",
+        sourceArgs: { userId: "{root.id}" }
+    )
+
+    notificationUnreadCount: Int! @resolveTo(
+        sourceName: "NotificationService",
+        sourceTypeName: "Query",
+        sourceFieldName: "countUnread",
+        requiredSelectionSet: "{ id }",
+        sourceArgs: { userId: "{root.id}" }
+    )
+}
