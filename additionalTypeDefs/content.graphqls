@@ -289,4 +289,9 @@ extend type Mutation {
   """
   createAssignmentAssessment(assessmentInput: CreateAssessmentInput!, assignmentInput: CreateAssignmentInput!): AssignmentAssessment! # resolved in content.ts
 
+  """
+  Creates a new UML Assessment and the corresponding UML Exercise.
+  """
+  createUMLAssessment(assessmentInput: CreateAssessmentInput!, createUmlExerciseInput: CreateUmlExerciseInput!): Assessment! # resolved in content.ts
+
 }
