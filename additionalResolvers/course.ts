@@ -74,6 +74,124 @@ const resolvers: Resolvers = {
                 return combineChapterProgressInformation(progressOfChapters);
             }
         },
+
+        skills: {
+            selectionSet: `
+            {
+              numberOfCourseMemberships
+            }`,
+
+            async resolve(root, _args, context, info) {
+                const skills = await context.ContentService.Query._internal_noauth_achievableSkillsByCourseIds({
+                    root,
+                    args: { courseIds: [root.id] },
+                    selectionSet: `
+                    {
+                        id
+                        skillName
+                        skillCategory
+                        isCustomSkill
+                    }`,
+                    context,
+                    info,
+                });
+
+                const courseSkills = skills[0];
+
+                if (!courseSkills || courseSkills.length === 0) {
+                    return [];
+                }
+
+                const skillIds = courseSkills.map(s => s.id);
+
+                const skillValues = await context.SkilllevelService.Query._internal_noauth_skillValuesBySkillIds({
+                    root,
+                    args: { skillIds },
+                    selectionSet: `
+                    {
+                        skillId
+                        skillValue
+                    }`,
+                    context,
+                    info,
+                });
+
+                const skillAllUsersStats = await context.SkilllevelService.Query._internal_noauth_skillsAllUsersStatsBySkillIds({
+                    root,
+                    args: { skillIds },
+                    selectionSet: `
+                    {
+                        skillId
+                        skillValueSum
+                        participantCount
+                    }`,
+                    context,
+                    info,
+                });
+
+                const skillValueById = new Map<string, number>();
+                skillValues.forEach((value) => skillValueById.set(value.skillId, value.skillValue));
+
+                const skillAllUsersStatsById = new Map<string, {skillValueSum: number; participantCount: number}>();
+                skillAllUsersStats.forEach(stat => {
+                    skillAllUsersStatsById.set(stat.skillId, {
+                        skillValueSum: stat.skillValueSum,
+                        participantCount: stat.participantCount,
+                    });
+                });
+
+                type SkillValueAggregate = {
+                    skillValueSum: number;
+                    allUserSkillValueSum: number;
+                    sameSkillCount: number;
+                };
+
+                const skillValueAggregate = new Map<string, SkillValueAggregate>();
+
+                courseSkills.forEach(skill => {
+                    const currentValue = skillValueById.get(skill.id) ?? 0;
+                    const currentAllUserValue = skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0;
+                    const currentKey = `${skill.skillName}_${skill.skillCategory}`;
+
+                    const current = skillValueAggregate.get(currentKey) ?? { skillValueSum: 0, sameSkillCount: 0, allUserSkillValueSum: 0};
+
+                    current.skillValueSum += currentValue;
+                    current.allUserSkillValueSum += currentAllUserValue;
+                    current.sameSkillCount += 1;
+
+                    skillValueAggregate.set(currentKey, current);
+                });
+
+                return courseSkills.map(skill => {
+                    const key = `${skill.skillName}_${skill.skillCategory}`;
+                    const valueAggregate = skillValueAggregate.get(key);
+
+                    return {
+                        id: skill.id,
+                        skillName: skill.skillName,
+                        skillCategory: skill.skillCategory,
+                        isCustomSkill: skill.isCustomSkill,
+                        skillValue:
+                            valueAggregate && valueAggregate.sameSkillCount > 0
+                                ? valueAggregate.skillValueSum / valueAggregate.sameSkillCount
+                                : 0,
+                        skillAllUsersStats: {
+                            skillId: skill.id,
+                            skillValueSum: skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0,
+                            participantCount: skillAllUsersStatsById.get(skill.id)?.participantCount ?? 0,
+                            averageSkillValue:
+                                valueAggregate &&
+                                valueAggregate.sameSkillCount > 0 &&
+                                root.numberOfCourseMemberships > 0
+                                    ? valueAggregate.allUserSkillValueSum /
+                                    (valueAggregate.sameSkillCount * root.numberOfCourseMemberships)
+                                    : 0
+                        }
+                    };
+                });
+            },
+        },
+
     },
     Mutation: {
         createSection: {

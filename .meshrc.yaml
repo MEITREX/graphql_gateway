@@ -102,7 +102,6 @@ additionalResolvers:
   - "./additionalResolvers/user.ts"
   - "./additionalResolvers/media.ts"
   - "./additionalResolvers/submission.ts"
-  - "./additionalResolvers/skill.ts"
 additionalEnvelopPlugins: "./envelopPlugins"
 transforms:
   - filterSchema:
