@@ -190,10 +190,10 @@ extend type Skill {
 
   skillValue: Float! # resolved in skill.ts
 
-  averageSkillValue: SkillAverageValue! @resolveTo(
+  skillAllUsersStats: SkillAllUsersStats! @resolveTo(
     sourceName: "SkilllevelService",
     sourceTypeName: "Query",
-    sourceFieldName: "_internal_noauth_averageSkillValuesBySkillIds",
+    sourceFieldName: "_internal_noauth_skillsAllUsersStatsBySkillIds",
     keyField: "id",
     keysArg: "skillIds"
   )
