@@ -144,6 +144,7 @@ const resolvers: Resolvers = {
                     skillValueSum: number;
                     allUserSkillValueSum: number;
                     sameSkillCount: number;
+                    maxParticipantCount: number;
                 };
 
                 const skillValueAggregate = new Map<string, SkillValueAggregate>();
@@ -151,13 +152,15 @@ const resolvers: Resolvers = {
                 courseSkills.forEach(skill => {
                     const currentValue = skillValueById.get(skill.id) ?? 0;
                     const currentAllUserValue = skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0;
+                    const currentParticipantCount = skillAllUsersStatsById.get(skill.id)?.participantCount ?? 0;
                     const currentKey = `${skill.skillName}_${skill.skillCategory}`;
 
-                    const current = skillValueAggregate.get(currentKey) ?? { skillValueSum: 0, sameSkillCount: 0, allUserSkillValueSum: 0};
+                    const current = skillValueAggregate.get(currentKey) ?? { skillValueSum: 0, sameSkillCount: 0, allUserSkillValueSum: 0, maxParticipantCount: 0};
 
                     current.skillValueSum += currentValue;
                     current.allUserSkillValueSum += currentAllUserValue;
                     current.sameSkillCount += 1;
+                    current.maxParticipantCount =  Math.max(current.maxParticipantCount, currentParticipantCount);
 
                     skillValueAggregate.set(currentKey, current);
                 });
@@ -178,7 +181,7 @@ const resolvers: Resolvers = {
                         skillAllUsersStats: {
                             skillId: skill.id,
                             skillValueSum: skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0,
-                            participantCount: skillAllUsersStatsById.get(skill.id)?.participantCount ?? 0,
+                            participantCount: valueAggregate?.maxParticipantCount ?? 0,
                             averageSkillValue:
                                 valueAggregate &&
                                 valueAggregate.sameSkillCount > 0 &&
