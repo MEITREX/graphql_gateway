@@ -104,30 +104,31 @@ const resolvers: Resolvers = {
 
                 const skillIds = courseSkills.map(s => s.id);
 
-                const skillValues = await context.SkilllevelService.Query._internal_noauth_skillValuesBySkillIds({
-                    root,
-                    args: { skillIds },
-                    selectionSet: `
-                    {
-                        skillId
-                        skillValue
-                    }`,
-                    context,
-                    info,
-                });
-
-                const skillAllUsersStats = await context.SkilllevelService.Query._internal_noauth_skillsAllUsersStatsBySkillIds({
-                    root,
-                    args: { skillIds },
-                    selectionSet: `
-                    {
-                        skillId
-                        skillValueSum
-                        participantCount
-                    }`,
-                    context,
-                    info,
-                });
+                const [skillValues, skillAllUsersStats] = await Promise.all([
+                    context.SkilllevelService.Query._internal_noauth_skillValuesBySkillIds({
+                        root,
+                        args: { skillIds },
+                        selectionSet: `
+                        {
+                            skillId
+                            skillValue
+                        }`,
+                        context,
+                        info,
+                    }),
+                    context.SkilllevelService.Query._internal_noauth_skillsAllUsersStatsBySkillIds({
+                        root,
+                        args: { skillIds },
+                        selectionSet: `
+                        {
+                            skillId
+                            skillValueSum
+                            participantCount
+                        }`,
+                        context,
+                        info,
+                    }),
+                ]);
 
                 const skillValueById = new Map<string, number>();
                 skillValues.forEach((value) => skillValueById.set(value.skillId, value.skillValue));
