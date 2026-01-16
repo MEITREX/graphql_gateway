@@ -58,7 +58,13 @@ extend type Course {
   """
   userProgress: CompositeProgressInformation! # resolved in course.ts
 
-  skills: [Skill!]! # resolved in course.ts
+  skills: [Skill!]! @resolveTo(
+    sourceName: "ContentService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_achievableSkillsByCourseIds",
+    keyField: "id",
+    keysArg: "courseIds"
+  )
 
   widgetRecommendations: [GamificationCategoryRecommendation!]! @resolveTo(
     sourceName: "GamificationService",
@@ -181,12 +187,4 @@ extend type Skill {
     keyField: "id",
     keysArg: "skillIds"
   )
-
-  skillValue: Float! # resolved in course.ts
-
-  skillAllUsersStats: SkillAllUsersStats! # resolved in course.ts
-}
-
-extend type SkillAllUsersStats {
-  averageSkillValue: Float!
 }
