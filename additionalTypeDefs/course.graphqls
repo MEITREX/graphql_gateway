@@ -187,4 +187,20 @@ extend type Skill {
     keyField: "id",
     keysArg: "skillIds"
   )
+
+  skillValue: SkillValue! @resolveTo(
+    sourceName: "SkilllevelService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_skillValuesBySkillIds",
+    keyField: "id",
+    keysArg: "skillIds"
+  )
+
+  skillAllUsersStats: SkillAllUsersStats! @resolveTo(
+    sourceName: "SkilllevelService",
+    sourceTypeName: "Query",
+    sourceFieldName: "_internal_noauth_skillsAllUsersStatsBySkillIds",
+    keyField: "id",
+    keysArg: "skillIds"
+  )
 }
