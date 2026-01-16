@@ -188,7 +188,7 @@ extend type Skill {
     keysArg: "skillIds"
   )
 
-  skillValue: SkillValue @resolveTo(
+  skillValue: SkillValue! @resolveTo(
     sourceName: "SkilllevelService",
     sourceTypeName: "Query",
     sourceFieldName: "_internal_noauth_skillValuesBySkillIds",
@@ -196,7 +196,7 @@ extend type Skill {
     keysArg: "skillIds"
   )
 
-  skillAllUsersStats: SkillAllUsersStats @resolveTo(
+  skillAllUsersStats: SkillAllUsersStats! @resolveTo(
     sourceName: "SkilllevelService",
     sourceTypeName: "Query",
     sourceFieldName: "_internal_noauth_skillsAllUsersStatsBySkillIds",
