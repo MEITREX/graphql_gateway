@@ -141,55 +141,18 @@ const resolvers: Resolvers = {
                     });
                 });
 
-                type SkillValueAggregate = {
-                    skillValueSum: number;
-                    allUserSkillValueSum: number;
-                    sameSkillCount: number;
-                    maxParticipantCount: number;
-                };
-
-                const skillValueAggregate = new Map<string, SkillValueAggregate>();
-
-                courseSkills.forEach(skill => {
-                    const currentValue = skillValueById.get(skill.id) ?? 0;
-                    const currentAllUserValue = skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0;
-                    const currentParticipantCount = skillAllUsersStatsById.get(skill.id)?.participantCount ?? 0;
-                    const currentKey = `${skill.skillName}_${skill.skillCategory}`;
-
-                    const current = skillValueAggregate.get(currentKey) ?? { skillValueSum: 0, sameSkillCount: 0, allUserSkillValueSum: 0, maxParticipantCount: 0};
-
-                    current.skillValueSum += currentValue;
-                    current.allUserSkillValueSum += currentAllUserValue;
-                    current.sameSkillCount += 1;
-                    current.maxParticipantCount =  Math.max(current.maxParticipantCount, currentParticipantCount);
-
-                    skillValueAggregate.set(currentKey, current);
-                });
-
                 return courseSkills.map(skill => {
-                    const key = `${skill.skillName}_${skill.skillCategory}`;
-                    const valueAggregate = skillValueAggregate.get(key);
-
                     return {
                         id: skill.id,
                         skillName: skill.skillName,
                         skillCategory: skill.skillCategory,
                         isCustomSkill: skill.isCustomSkill,
-                        skillValue:
-                            valueAggregate && valueAggregate.sameSkillCount > 0
-                                ? valueAggregate.skillValueSum / valueAggregate.sameSkillCount
-                                : 0,
+                        skillValue: skillValueById.get(skill.id) ?? 0,
                         skillAllUsersStats: {
                             skillId: skill.id,
                             skillValueSum: skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0,
-                            participantCount: valueAggregate?.maxParticipantCount ?? 0,
-                            averageSkillValue:
-                                valueAggregate &&
-                                valueAggregate.sameSkillCount > 0 &&
-                                root.numberOfCourseMemberships > 0
-                                    ? valueAggregate.allUserSkillValueSum /
-                                    (valueAggregate.sameSkillCount * root.numberOfCourseMemberships)
-                                    : 0
+                            participantCount: skillAllUsersStatsById.get(skill.id)?.participantCount ?? 0,
+                            averageSkillValue: (skillAllUsersStatsById.get(skill.id)?.skillValueSum ?? 0) / root.numberOfCourseMemberships
                         }
                     };
                 });
