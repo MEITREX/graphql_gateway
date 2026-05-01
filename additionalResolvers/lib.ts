@@ -6,6 +6,7 @@ export enum AssessmentItemType {
     QuizAssessment = "QuizAssessment",
     FlashcardAssessment = "FlashcardAssessment",
     SubmissionAssessment = "SubmissionAssessment",
+    UmlAssessment = "UmlAssessment",
 }
 
 class Logger {
@@ -38,6 +39,10 @@ type SubmissionAssessmentMutation = {
     assessmentType: AssessmentItemType.SubmissionAssessment;
     type: null
 };
+type UmlAssessmentMutation = {
+    assessmentType: AssessmentItemType.UmlAssessment;
+    type: null
+};
 
 type AssessmentMutationHandlerArgs<T extends AssessmentItemType> = (T extends AssessmentItemType.FlashcardAssessment
     ? FlashcardAssessmentMutation
@@ -45,6 +50,8 @@ type AssessmentMutationHandlerArgs<T extends AssessmentItemType> = (T extends As
     ? QuizAssessmentMutation
     : T extends AssessmentItemType.SubmissionAssessment
     ? SubmissionAssessmentMutation
+    : T extends AssessmentItemType.UmlAssessment
+    ? UmlAssessmentMutation
     : never) & {
     mutationName: string;
     callback: CallbackAfterAssessmentMutation<T>;
@@ -136,6 +143,9 @@ export const handleAssessmentMutationThenCallback = async <T extends AssessmentI
         case AssessmentItemType.SubmissionAssessment:
             inputType = "submissionInput";
             break;
+        case AssessmentItemType.UmlAssessment:
+            inputType = "umlInput";
+            break;
         default:
             throw new Error(`Unsupported assessment type: ${assessmentType}`);
     }
@@ -187,6 +197,9 @@ const fetchAssessmentFromContentService = async (assessmentType, root, context, 
             break;
         case AssessmentItemType.SubmissionAssessment:
             assessmentMutationString = "SubmissionAssessment";
+            break;
+        case AssessmentItemType.UmlAssessment:
+            assessmentMutationString = "UmlAssessment";
             break;
         default:
             throw new Error(`Unsupported assessment type: ${assessmentType}`);
